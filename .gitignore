@@ -1,0 +1,98 @@
+# === Python/Django ===
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+.Python
+db.sqlite3
+env/
+venv/
+myenv/
+ENV/
+env.bak/
+*.env
+*.env.*
+
+# Django specific
+/staticfiles/
+/media/
+/*.DS_Store
+*.bak
+*.swp
+*.tmp
+
+# === React/Vite (frontend folder) ===
+/frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.DS_Store
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Vite cache
+frontend/.vite
+
+# === System files ===
+*.DS_Store
+Thumbs.db
+
+# === VSCode / IDEs ===
+.vscode/
+.idea/
+*.code-workspace
+
+# === Mac/Linux system files ===
+*.orig
+ehthumbs.db
+.DS_Store
+
+# === Coverage/testing ===
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# === Build tools ===
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# === Celery beat/scheduler related (if used) ===
+celerybeat-schedule
+celerybeat.pid
+
+# === Docker (optional) ===
+*.pid
+*.seed
+*.tar
+*.lock
+docker-compose.override.yml
+
+# === Local secrets and configs ===
+secrets.json
+config.json
+local_settings.py
