@@ -10,7 +10,7 @@ const MyOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/orders/",
+        const res = await axios.get("https://algoder.onrender.com/api/orders/",
 					{
 						headers: {
 							Authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -21,7 +21,7 @@ const MyOrders = () => {
 
         // For each order, verify its status
         res.data.forEach(order => {
-          axios.post("http://localhost:8000/api/verify-order/", {
+          axios.post("https://algoder.onrender.com/api/verify-order/", {
             order_id: order.order_id,
             amount: order.amount
           }).then(verifyRes => {

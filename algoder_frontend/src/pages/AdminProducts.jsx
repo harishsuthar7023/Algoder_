@@ -10,7 +10,7 @@ const ProductCard = ({ product, onDelete }) => {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        await axios.delete(`http://localhost:8000/api/products/${product.id}/delete/`);
+        await axios.delete(`https://algoder.onrender.com/api/products/${product.id}/delete/`);
         onDelete(product.id);
       } catch (error) {
         console.error('Error deleting product:', error);
@@ -72,7 +72,7 @@ function ProductPage() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/products/')
+    axios.get('https://algoder.onrender.com/api/products/')
       .then(res => setProducts(res.data))
       .catch(err => console.error('Error fetching products:', err));
   }, []);

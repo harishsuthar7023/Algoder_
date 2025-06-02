@@ -20,7 +20,7 @@ const Dashboard = () => {
         const token = localStorage.getItem("access_token");
 
         // Check if superuser
-        const profileRes = await axios.get("http://localhost:8000/api/user-profile/", {
+        const profileRes = await axios.get("https://algoder.onrender.com/api/user-profile/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -33,7 +33,7 @@ const Dashboard = () => {
         }
 
         // Fetch stats
-        const statsRes = await axios.get("http://localhost:8000/api/dashboard-stats/", {
+        const statsRes = await axios.get("https://algoder.onrender.com/api/dashboard-stats/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

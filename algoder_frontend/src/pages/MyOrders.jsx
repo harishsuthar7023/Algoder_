@@ -9,7 +9,7 @@ const MyOrders = () => {
   const token = localStorage.getItem("access_token");
 
   useEffect(() => {
-    axios.get("http://localhost:8000/api/orders/", {
+    axios.get("https://algoder.onrender.com/api/orders/", {
       headers: {
         Authorization: `Bearer ${token}`,
       },

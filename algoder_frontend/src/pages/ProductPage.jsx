@@ -10,7 +10,7 @@ function ProductPage() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/products/')
+    axios.get('https://algoder.onrender.com/api/products/')
       .then(res => setProducts(res.data))
       .catch(err => console.error(err));
   }, []);

@@ -60,7 +60,7 @@ const ProductDetail = () => {
   };
 
   useEffect(() => {
-    axios.get(`http://localhost:8000/api/products/${id}/`)
+    axios.get(`https://algoder.onrender.com/api/products/${id}/`)
       .then(res => {
         setProduct(res.data);
         const images = [

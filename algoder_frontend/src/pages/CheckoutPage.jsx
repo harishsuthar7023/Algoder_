@@ -18,7 +18,7 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8000/api/products/${id}/`)
+      .get(`https://algoder.onrender.com/api/products/${id}/`)
       .then((res) => setProduct(res.data))
       .catch((err) => console.error(err));
   }, [id]);
@@ -61,7 +61,7 @@ export default function CheckoutPage() {
       const token = localStorage.getItem("access_token"); // ya jahan bhi aap token store kar rahe ho
 
       const res = await axios.post(
-        "http://localhost:8000/api/create-order/",
+        "https://algoder.onrender.com/api/create-order/",
         payload,
         {
           headers: {

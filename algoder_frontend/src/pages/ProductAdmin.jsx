@@ -36,7 +36,7 @@ const ProductForm = () => {
     const checkUser = async () => {
       try {
         const token = localStorage.getItem("access_token");
-        const res = await axios.get("http://localhost:8000/api/user-profile/", {
+        const res = await axios.get("https://algoder.onrender.com/api/user-profile/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -92,7 +92,7 @@ const ProductForm = () => {
     }
 
     try {
-      const res = await axios.post("http://localhost:8000/api/create-product/", form, {
+      const res = await axios.post("https://algoder.onrender.com/api/create-product/", form, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
