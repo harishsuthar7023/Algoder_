@@ -1,1 +1,1 @@
-web: gunicorn algoder.wsgi:application
+gunicorn algoder.wsgi:application
