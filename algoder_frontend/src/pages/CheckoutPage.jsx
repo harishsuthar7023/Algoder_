@@ -73,7 +73,7 @@ export default function CheckoutPage() {
       if (res.data.payment_session_id) {
         const checkoutOptions = {
           paymentSessionId: res.data.payment_session_id,
-          returnUrl: `http://localhost:5173/ordercheck/`,
+          returnUrl: `https://algoder-nmqo.onrender.com/ordercheck/`,
         };
 
         await cashfreeRef.current.checkout(checkoutOptions);
