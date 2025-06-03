@@ -3,7 +3,7 @@ import API from "../utils/api";
 import { Menu, X, UserCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-const navLinks = ["Home", "Products", "Orders", "About"];
+const navLinks = ["Home", "Products", "Orders", "About","Checkout"];
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -60,7 +60,9 @@ export default function Navbar() {
       navigate("/positions");
     } else if (link === "About") {
       navigate("/about");
-    } else {
+    } else if (link === "Checkout") {
+      navigate("/ordercheck");
+    }else {
       navigate(`/${link.toLowerCase()}`);
     }
     setIsOpen(false);
