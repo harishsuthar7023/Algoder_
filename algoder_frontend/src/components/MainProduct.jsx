@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import Navbar from '../components/NavBar';
 import { Link } from 'react-router-dom';
-import Footer from '../components/Footer';
 
 const ProductCard = ({ product }) => {
   const thumbnail = product.image1 || product.image2 || product.image3;

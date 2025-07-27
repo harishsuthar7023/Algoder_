@@ -2,6 +2,9 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # Load environment variables from .env file
 load_dotenv()
@@ -20,24 +23,34 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'algo',
-
     'rest_framework',
+    'cloudinary',
+    'cloudinary_storage',
     'corsheaders',
+    "django_json_widget",
 ]
 
+def simple_middleware(get_response):
+    def middleware(request):
+        print(">>> Request received:", request.method, request.path)
+        response = get_response(request)
+        return response
+    return middleware
+
+
 MIDDLEWARE = [
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'algo.middleware.TrackVisitorsMiddleware',
+    'algoder.settings.simple_middleware',
 ]
 
 ROOT_URLCONF = 'algoder.urls'
@@ -59,7 +72,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'algoder.wsgi.application'
 
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 
 # Database using environment variable
 DATABASES = {
@@ -110,3 +123,24 @@ SIMPLE_JWT = {
 CASHFREE_APP_ID = os.getenv('CASHFREE_APP_ID')
 CASHFREE_SECRET_KEY = os.getenv('CASHFREE_SECRET_KEY')
 CASHFREE_API_BASE = os.getenv('CASHFREE_API_BASE')
+
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = None   # Unlimited form data upload size
+FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # React Vite dev server
+]
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+
+

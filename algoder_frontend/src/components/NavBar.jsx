@@ -3,7 +3,9 @@ import API from "../utils/api";
 import { Menu, X, UserCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-const navLinks = ["Home", "Products", "Orders", "About","Checkout"];
+import { useLocation } from "react-router-dom";
+// const navLinks = ["Home", "Products","Courses", "Orders", "About","Checkout","Mycourse"];
+const navLinks = ["Home", "Products", "Orders", "About"];
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,12 +15,13 @@ export default function Navbar() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
   // const [message, setMessage] = useState('');
 
   useEffect(() => {
   const fetchProtected = async () => {
     try {
-      const res = await API.get('protected/');
+      const res = await API.get('/protected/');
       // setMessage(res.data.message);
     } catch (err) {
       console.error('Auth failed, redirecting to login:', err);
@@ -62,7 +65,11 @@ export default function Navbar() {
       navigate("/about");
     } else if (link === "Checkout") {
       navigate("/ordercheck");
-    }else {
+    } else if (link === "Mycourse") {
+      navigate("/mycourse");
+    } else if (link === "Courses") {
+      navigate("/courses");
+    } else{
       navigate(`/${link.toLowerCase()}`);
     }
     setIsOpen(false);
@@ -70,7 +77,7 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-0 left-0 w-full bg-[#1f2937] shadow-md z-50">
-      <nav className="fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl mx-auto px-6 py-2 rounded-xl backdrop-blur-sm bg-white/50 shadow-md flex items-center justify-between h-14">
+      <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl mx-auto px-6 py-2 rounded-xl backdrop-blur-sm bg-white/50 shadow-md flex items-center justify-between h-12 md:h-14">
         <div
           className="text-2xl font-bold text-gray-800 cursor-pointer"
           onClick={() => navigate("/")}
@@ -80,15 +87,41 @@ export default function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
-          {navLinks.map((link, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleNavClick(link)}
-              className="text-gray-700 hover:text-blue-600 dark:text-gray-900 transition duration-300"
-            >
-              {link}
-            </button>
-          ))}
+          {navLinks.map((link, idx) => {
+            const path =
+              link === "Home"
+                ? "/"
+                : link === "Orders"
+                ? "/myorders"
+                : link === "Positons"
+                ? "/positions"
+                : link === "About"
+                ? "/about"
+                : link === "Checkout"
+                ? "/ordercheck"
+                : link === "Mycourse"
+                ? "/mycourse"
+                : link === "Courses"
+                ? "/courses"
+                : `/${link.toLowerCase()}`;
+
+            const isActive = location.pathname === path;
+
+            return (
+              <button
+                key={idx}
+                onClick={() => handleNavClick(link)}
+                className={`${
+                  isActive
+                    ? "text-blue-600 font-semibold "
+                    : "text-gray-700 hover:text-blue-600"
+                } dark:text-gray-900 transition duration-300`}
+              >
+                {link}
+              </button>
+            );
+          })}
+
           
           {isLoggedIn ? (
             <div className="relative" ref={dropdownRef}>
@@ -155,18 +188,41 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className="md:hidden absolute top-full left-0 w-full rounded-2xl backdrop-blur-md bg-white/80 px-6 pb-4 pt-2 shadow-md z-40 mt-20"
+            className="md:hidden absolute top-full left-1/2 w-[93%] -translate-x-1/2 rounded-2xl backdrop-blur-md bg-white/60 px-6 pb-4 pt-4 shadow-md z-40 mt-20"
           >
             <ul className="flex flex-col space-y-4">
-              {navLinks.map((link, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleNavClick(link)}
-                  className=" text-gray-800 text-left"
-                >
-                  {link}
-                </button>
-              ))}
+              {navLinks.map((link, idx) => {
+                const path =
+                  link === "Home"
+                    ? "/"
+                    : link === "Orders"
+                    ? "/myorders"
+                    : link === "Positons"
+                    ? "/positions"
+                    : link === "About"
+                    ? "/about"
+                    : link === "Checkout"
+                    ? "/ordercheck"
+                    : link === "Mycourse"
+                    ? "/mycourse"
+                    : link === "Courses"
+                    ? "/courses"
+                    : `/${link.toLowerCase()}`;
+
+                const isActive = location.pathname === path;
+
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => handleNavClick(link)}
+                    className={`${
+                      isActive ? "text-blue-600 font-semibold" : "text-gray-800"
+                    } text-left`}
+                  >
+                    {link}
+                  </button>
+                );
+              })}
 
               {isLoggedIn ? (
                 <>

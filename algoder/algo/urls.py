@@ -1,7 +1,8 @@
-from .views import register_user, login_user ,protected_view,create_cashfree_order, list_orders, verify_order_status,CreateProductView,UserProfileView,delete_product,dashboard_stats,track_visit
+from .views import register_user, login_user ,protected_view,create_cashfree_order, list_orders, verify_order_status,CreateProductView,UserProfileView,delete_product,dashboard_stats,track_visit,CourseDataAPIView,UploadVideoAPIView
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import ProductViewSet
+from .views import CourseDetailView
 # from .views import receive_trade_data
 # from .views import delete_trade_symbol,place_order,trigger_start_algo,trigger_stop_algo
 # from authapp.algo.main import trigger_algo
@@ -24,6 +25,9 @@ urlpatterns = [
     path('products/<int:product_id>/delete/', delete_product, name='delete_product'),
     path('dashboard-stats/', dashboard_stats, name='dashboard-stats'),
     path('track-visit/', track_visit, name='track-visit'),
+    path('course-data/', CourseDataAPIView.as_view(), name='course-data'),
+    path('upload-video/', UploadVideoAPIView.as_view(), name='upload-video'),
+    path('course/<int:pk>/', CourseDetailView.as_view()),
      # Optional route to test token
     # path('symbols/', symbol_list),
 ]

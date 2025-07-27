@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import API from '../utils/api';
 
 const MyOrders = () => {
 //   const [orders, setOrders] = useState([]);
@@ -10,7 +11,7 @@ const MyOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await axios.get("https://algoder.onrender.com/api/orders/",
+        const res = await API.get("/orders/",
 					{
 						headers: {
 							Authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -21,7 +22,7 @@ const MyOrders = () => {
 
         // For each order, verify its status
         res.data.forEach(order => {
-          axios.post("https://algoder.onrender.com/api/verify-order/", {
+          API.post("/verify-order/", {
             order_id: order.order_id,
             amount: order.amount
           }).then(verifyRes => {

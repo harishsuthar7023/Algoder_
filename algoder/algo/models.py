@@ -2,11 +2,13 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import JSONField  # if using PostgreSQL
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    types = models.TextField(blank=True)
 
     original_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     discount = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
@@ -48,6 +50,7 @@ class Order(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders", null=True)
     file = models.FileField(upload_to='products/', default=None, null=True, blank=True)  # 👈 Add this line
+    types = models.TextField(blank=True)
 
     order_id = models.CharField(max_length=100, unique=True)
     name = models.CharField(max_length=100)
@@ -64,3 +67,51 @@ class Order(models.Model):
 class SiteVisit(models.Model):
     ip_address = models.GenericIPAddressField()
     timestamp = models.DateTimeField(auto_now_add=True)
+
+
+
+
+class Topic(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+class Video(models.Model):
+    topic = models.ForeignKey(Topic, related_name='videos', on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    video_url = models.URLField()
+    documentation = models.JSONField(default=dict)  # Store structured docs as JSON
+
+    def __str__(self):
+        return self.title
+    
+class Course(models.Model):
+    title = models.CharField(max_length=255)
+    subtitle = models.TextField()
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+    original_price = models.DecimalField(max_digits=8, decimal_places=2)
+    discount_percent = models.PositiveIntegerField()
+    types = models.TextField(blank=True)
+
+    video_url = models.URLField(help_text="Course intro video (YouTube embed URL)")
+    thumbnail = models.ImageField(upload_to="course_thumbnails/", blank=True, null=True)
+
+    features = models.TextField(help_text="Bullet points separated by newline")
+    learning_objectives = models.TextField(help_text="What you'll learn")
+    requirements = models.TextField(help_text="Prerequisites")
+    target_audience = models.TextField(help_text="Who this course is for")
+    full_description = models.TextField()
+    curriculum = models.TextField(help_text="One line per topic/module")
+    instructor_name = models.CharField(max_length=100)
+    instructor_bio = models.TextField()
+    instructor_image = models.ImageField(upload_to="instructors/", null=True, blank=True)
+
+    language = models.CharField(max_length=50, default="English")
+    level = models.CharField(max_length=50, default="Beginner")  # Beginner / Intermediate / Advanced
+    duration = models.CharField(max_length=50, default="6 hours")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title

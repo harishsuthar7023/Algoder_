@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import DashNav from "../components/DashNav";
+import API from "../utils/api";
 
 const ProductForm = () => {
   const [formData, setFormData] = useState({
@@ -36,7 +37,7 @@ const ProductForm = () => {
     const checkUser = async () => {
       try {
         const token = localStorage.getItem("access_token");
-        const res = await axios.get("https://algoder.onrender.com/api/user-profile/", {
+        const res = await API.get("/user-profile/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -92,7 +93,7 @@ const ProductForm = () => {
     }
 
     try {
-      const res = await axios.post("https://algoder.onrender.com/api/create-product/", form, {
+      const res = await API.post("/create-product/", form, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",

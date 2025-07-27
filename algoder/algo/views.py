@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-# Create your views here.
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,7 +10,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import viewsets
 from .models import Product,Order,Getfile
 from .serializers import ProductSerializer,OrderSerializer
-# views.py
 import json
 import requests
 from django.http import JsonResponse
@@ -19,10 +17,17 @@ from django.views.decorators.csrf import csrf_exempt
 import uuid
 from django.conf import settings
 from rest_framework.decorators import api_view
-from rest_framework.response import Response
-# from cashfree_sdk.payouts import Cashfree
-# views.py
 from rest_framework.parsers import MultiPartParser, FormParser
+from .serializers import TopicSerializer
+import cloudinary.uploader
+from .models import Topic, Video
+from .models import SiteVisit
+from rest_framework.permissions import AllowAny
+from django.utils import timezone
+from rest_framework import generics
+from .models import Course
+from .serializers import CourseSerializer
+from rest_framework.exceptions import PermissionDenied
 
 app_id = settings.CASHFREE_APP_ID
 secret_key = settings.CASHFREE_SECRET_KEY
@@ -135,12 +140,15 @@ def create_cashfree_order(request):
     file_instance = Getfile.objects.filter(name=data.get('product_name')).first()
     print(f"File instance retrieved: {file_instance}")
     if not file_instance:
-        return JsonResponse({"error": "File not found"}, status=404)
+        typess = "course"
+    else:
+        typess = "product"
     
     print(f"Creating order with ID: and data: {user}")
     order = Order.objects.create(
         user=user,
-        file=file_instance.file,  # Save the file instance
+        file=file_instance.file if file_instance else None,
+        types = typess,  # Save the file instance
         order_id=order_id,
         name=data.get('firstName'),
         email=data.get('email'),
@@ -267,9 +275,7 @@ class UserProfileView(APIView):
 
 
 
-from .models import SiteVisit
-from rest_framework.permissions import AllowAny
-from django.utils import timezone
+
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
@@ -319,3 +325,53 @@ def dashboard_stats(request):
         "pending_orders": [serialize_order(order) for order in pending_orders],
     })
 
+
+class CourseDataAPIView(APIView):
+    permission_classes = [IsAuthenticated]  # 👈 Only logged-in users allowed
+
+    def get(self, request):
+        user = request.user
+        print(user)
+
+        # ✅ Check if the user has a valid course order
+        has_valid_order = Order.objects.filter(user=user, status="success", types="course").exists()
+
+        if not has_valid_order:
+            return Response({
+                "success": False,
+                "message": "You do not have an active course purchase.",
+                "data": []
+            }, status=200)
+        # ✅ User has access, return course data
+        topics = Topic.objects.prefetch_related('videos').all()
+        serializer = TopicSerializer(topics, many=True)
+        return Response(serializer.data)
+# 
+# from rest_framework.views import APIView
+# from rest_framework.response import Response
+# from rest_framework.permissions import AllowAny
+# from .models import Video, Topic
+
+class UploadVideoAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        print(request.data)
+        title = request.data.get('title')
+        topic_id = request.data.get('topic')
+        video_url = request.data.get('video_url')
+
+        if not title or not topic_id or not video_url:
+            return Response({'message': 'Missing data.'}, status=400)
+
+        try:
+            topic = Topic.objects.get(id=topic_id)
+            Video.objects.create(title=title, topic=topic, video_url=video_url)
+            return Response({'message': 'Video saved successfully!'})
+        except Topic.DoesNotExist:
+            return Response({'message': 'Invalid topic ID'}, status=404)
+
+
+class CourseDetailView(generics.RetrieveAPIView):
+    queryset = Course.objects.all()
+    serializer_class = CourseSerializer

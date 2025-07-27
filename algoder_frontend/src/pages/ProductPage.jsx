@@ -1,19 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import Navbar from '../components/NavBar';
-import { Link } from 'react-router-dom';
+
 import Footer from '../components/Footer';
 import MainProduct from '../components/MainProduct';
-
+import API from '../utils/api';
 
 function ProductPage() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    axios.get('https://algoder.onrender.com/api/products/')
+    API.get('/products/')
       .then(res => setProducts(res.data))
       .catch(err => console.error(err));
   }, []);
+
+  // 🔄 Stylish Loader UI when products are not yet loaded
+  if (products.length === 0) {
+    return (
+      <>
+        <Navbar />
+        <div className="flex items-center justify-center min-h-[100vh] bg-neutral-800 px-5">
+          <div className="w-full max-w-md bg-[#303030] text-white p-8 rounded-2xl shadow-2xl border border-neutral-700 text-center">
+            <h2 className="text-2xl font-semibold text-blue-400 mb-3">Loading Products</h2>
+            <p className="text-gray-300 mb-6">Please wait while we fetch the latest items...</p>
+            <div className="w-10 h-10 mx-auto border-4 border-blue-300 border-t-blue-500 rounded-full animate-spin"></div>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import API from '../utils/api';
 import Navbar from '../components/NavBar';
 import HeroSection from '../components/HeroSection';
-import ProductBanner from '../components/product';
+import ProductBanner from '../pages/MyProduct';
 // import Test from '../components/Test';
 import axios from "axios";
 import WhyChooseUs from '../components/WhyChooseUs';
@@ -13,7 +13,7 @@ import CallToActionBanner from '../components/CallToActionBanner';
 import Footer from '../components/Footer';
 const Home = () => {
     useEffect(() => {
-    axios.get("http://localhost:8000/api/track-visit/")
+    API.get("/track-visit/")
       .then((res) => console.log("Visitor Tracked"))
       .catch((err) => console.error("Visitor tracking failed", err));
   }, []);

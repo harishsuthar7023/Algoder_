@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import DashNav from "../components/DashNav";
+import API from "../utils/api";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ const Dashboard = () => {
         const token = localStorage.getItem("access_token");
 
         // Check if superuser
-        const profileRes = await axios.get("https://algoder.onrender.com/api/user-profile/", {
+        const profileRes = await API.get("/user-profile/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -33,7 +34,7 @@ const Dashboard = () => {
         }
 
         // Fetch stats
-        const statsRes = await axios.get("https://algoder.onrender.com/api/dashboard-stats/", {
+        const statsRes = await API.get("/dashboard-stats/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

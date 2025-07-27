@@ -2,10 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { load } from "@cashfreepayments/cashfree-js";
 import { useParams } from "react-router-dom";
+import API from "../utils/api";
 
 export default function CheckoutPage() {
   const cashfreeRef = useRef(null);
-  const { id } = useParams();
+  const { id , types} = useParams();
+  console.log(id, types);
 
   const [product, setProduct] = useState(null);
   const [formData, setFormData] = useState({
@@ -17,11 +19,22 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => {
-    axios
-      .get(`https://algoder.onrender.com/api/products/${id}/`)
-      .then((res) => setProduct(res.data))
-      .catch((err) => console.error(err));
-  }, [id]);
+    const fetchData = async () => {
+      try {
+        if (types === 'course') {
+          const res = await API.get(`/course/${id}/`);
+          setProduct(res.data);
+        } else {
+          const res = await API.get(`/products/${id}/`);
+          setProduct(res.data);
+        }
+      } catch (err) {
+        console.error("Error fetching product:", err);
+      }
+    };
+
+    fetchData();
+  }, [id, types]);
 
   useEffect(() => {
     const loadCashfreeSDK = async () => {
@@ -46,6 +59,12 @@ export default function CheckoutPage() {
     e.preventDefault();
     if (!product) return;
 
+    if (types === 'course') { 
+      var prc = product.title;
+    } else {
+      var prc = product.name;
+    }
+
     try {
       const payload = {
 
@@ -55,13 +74,13 @@ export default function CheckoutPage() {
         address: formData.address,
         company_name: formData.company_name,
         amount: product.price,
-        product_name: product.name,
+        product_name: prc,
       };
 
       const token = localStorage.getItem("access_token"); // ya jahan bhi aap token store kar rahe ho
 
-      const res = await axios.post(
-        "https://algoder.onrender.com/api/create-order/",
+      const res = await API.post(
+        "/create-order/",
         payload,
         {
           headers: {
@@ -73,7 +92,8 @@ export default function CheckoutPage() {
       if (res.data.payment_session_id) {
         const checkoutOptions = {
           paymentSessionId: res.data.payment_session_id,
-          returnUrl: `https://algoder-nmqo.onrender.com/#/ordercheck`,
+          // returnUrl: `https://algoder-nmqo.onrender.com/#/ordercheck`,
+          returnUrl: `http://localhost:5173/#/ordercheck`,
         };
 
         await cashfreeRef.current.checkout(checkoutOptions);

@@ -1,79 +1,74 @@
-import React from 'react';
-import Footer from '../components/Footer';
-import Navbar from '../components/NavBar';
+import React from "react";
+import Navbar from "../components/NavBar";
+import Footer from "../components/Footer";
+import {
+  aboutHeader,
+  toolFeatures,
+  mission,
+  reasonsToChoose,
+  callToAction,
+} from "../content/aboutContent";
 
 const About = () => {
   return (
     <>
-    <Navbar />
-    <div className="min-h-screen bg-neutral-800 text-white px-6 py-28">
-      <div className="max-w-6xl mx-auto">
-        <section className="bg-[#303030] rounded-xl p-6 md:p-10 mb-10 shadow-lg">
-          <h2 className="text-2xl font-semibold mb-4">🔧 What We Do</h2>
-          <p className="text-gray-300 text-lg">
-            <strong>Algoder</strong> develops and sells high-quality algorithmic trading tools for serious traders. Whether you trade equities, crypto, or futures, our tools are designed for speed, efficiency, and real-time market interaction using broker APIs.
-          </p>
-        </section>
+      <Navbar />
+      <div className="min-h-screen bg-neutral-800 text-white px-4 md:px-6 py-24">
+        <div className="max-w-6xl mx-auto space-y-6">
 
-        <section className="grid md:grid-cols-2 gap-8 mb-10">
-          <div className="bg-[#303030] rounded-xl p-6 shadow-md">
-            <h2 className="text-xl font-semibold mb-3">🛠️ Our Tools</h2>
-            <ul className="list-disc list-inside text-gray-300 space-y-2">
-              <li>Live Algo Bots (Scalping, Trend, Mean Reversion)</li>
-              <li>Broker Integration (Zerodha, Upstox, Binance)</li>
-              <li>Real-time Dashboard with React & WebSocket</li>
-              <li>Smart Order Placement with SL, TGT, TSL</li>
-              <li>Backtesting Frameworks</li>
-              <li>Telegram / WhatsApp Alerts</li>
+          {/* What We Do */}
+          <section className="bg-[#303030] rounded-2xl p-8 shadow-xl border border-neutral-700">
+            <h2 className="text-3xl font-bold mb-4 text-indigo-400 tracking-tight">{aboutHeader.title}</h2>
+            <p className="text-gray-300 text-lg leading-relaxed">{aboutHeader.description}</p>
+          </section>
+
+          {/* Our Tools & Expertise */}
+          <section className="grid sm:grid-cols-1 md:grid-cols-2 gap-6">
+            {toolFeatures.map((section, idx) => (
+              <div key={idx} className="bg-[#303030] p-6 rounded-xl border border-neutral-700 shadow-md hover:shadow-lg transition duration-300">
+                <h3 className="text-xl font-semibold text-indigo-400 mb-2">{section.title}</h3>
+                {section.intro && (
+                  <p className="text-gray-400 mb-3">{section.intro}</p>
+                )}
+                <ul className="list-disc list-inside text-gray-300 space-y-1 pl-1">
+                  {section.points.map((point, i) => (
+                    <li key={i}>{point}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </section>
+
+          {/* Mission */}
+          <section className="bg-[#303030] rounded-2xl p-8 shadow-xl border border-neutral-700">
+            <h2 className="text-2xl font-bold text-indigo-400 mb-4">{mission.title}</h2>
+            <p className="text-gray-300 text-lg leading-relaxed">{mission.description}</p>
+          </section>
+
+          {/* Why Choose Us */}
+          <section className="bg-[#303030] rounded-2xl p-8 shadow-xl border border-neutral-700">
+            <h2 className="text-2xl font-bold text-indigo-400 mb-4">{reasonsToChoose.title}</h2>
+            <ul className="list-disc list-inside text-gray-300 space-y-2 text-lg pl-2">
+              {reasonsToChoose.points.map((point, i) => (
+                <li key={i}>{point}</li>
+              ))}
             </ul>
+          </section>
+
+          {/* Call to Action */}
+          <div className="text-center">
+            <h3 className="text-3xl font-semibold text-indigo-400 mb-4">{callToAction.title}</h3>
+            <p className="text-gray-400 mb-6 text-lg">{callToAction.subtitle}</p>
+            <a
+              href={callToAction.buttonLink}
+              className="inline-block bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-8 py-3 rounded-full shadow-md transition duration-300"
+            >
+              {callToAction.buttonText}
+            </a>
           </div>
-
-          <div className="bg-[#303030] rounded-xl p-6 shadow-md">
-            <h2 className="text-xl font-semibold mb-3">🧠 Expertise</h2>
-            <p className="text-gray-300 mb-2">
-              We specialize in end-to-end algo trading system development using:
-            </p>
-            <ul className="list-disc list-inside text-gray-300 space-y-1">
-              <li>Python, Django, FastAPI</li>
-              <li>React, Tailwind, WebSocket</li>
-              <li>Multi-threading & Low-latency Architecture</li>
-              <li>PostgreSQL, Redis, Celery, JWT Auth</li>
-              <li>Data Visualization and Live LTP tracking</li>
-            </ul>
-          </div>
-        </section>
-
-        <section className="bg-[#303030] rounded-xl p-6 md:p-10 mb-10 shadow-lg">
-          <h2 className="text-xl font-semibold mb-3">🎯 Our Mission</h2>
-          <p className="text-gray-300 text-lg">
-            Our mission is to democratize algorithmic trading by making powerful, easy-to-use, and customizable automation tools accessible to every trader — from beginners to hedge funds.
-          </p>
-        </section>
-
-        <section className="bg-[#303030] rounded-xl p-6 md:p-10 mb-10 shadow-lg">
-          <h2 className="text-xl font-semibold mb-3">💡 Why Choose Algoder?</h2>
-          <ul className="list-disc list-inside text-gray-300 space-y-2 text-lg">
-            <li>Fast execution with real-time streaming data</li>
-            <li>Custom development as per your strategy</li>
-            <li>Secure architecture with user control</li>
-            <li>Transparent and flexible pricing</li>
-            <li>Technical support and documentation</li>
-          </ul>
-        </section>
-
-        <div className="text-center mt-12">
-          <h3 className="text-2xl font-medium text-indigo-400 mb-4">Ready to Automate Your Trading?</h3>
-          <p className="text-gray-400 mb-6">Contact us to build or buy your custom algo tool today.</p>
-          <a
-            href="/contact"
-            className="inline-block bg-indigo-500 hover:bg-indigo-600 text-white px-8 py-3 rounded-full transition duration-300"
-          >
-            Contact Us
-          </a>
         </div>
       </div>
-    </div>
-    <Footer />
+      <Footer />
     </>
   );
 };

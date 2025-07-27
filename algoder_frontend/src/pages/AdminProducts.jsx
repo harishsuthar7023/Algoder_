@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import API from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import DashNav from "../components/DashNav";
 import { Link } from 'react-router-dom';
@@ -10,7 +11,7 @@ const ProductCard = ({ product, onDelete }) => {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        await axios.delete(`https://algoder.onrender.com/api/products/${product.id}/delete/`);
+        await API.delete(`/products/${product.id}/delete/`);
         onDelete(product.id);
       } catch (error) {
         console.error('Error deleting product:', error);

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/NavBar';
 import Footer from '../components/Footer';
+import API from '../utils/api';
 
 const ZoomableImage = ({ src, alt }) => {
   const [showZoom, setShowZoom] = useState(false);
@@ -56,11 +57,12 @@ const ProductDetail = () => {
   const navigate = useNavigate();
 
   const handleBuyNow = () => {
-    navigate(`/checkout/${product.id}`);
+    // console.log("Buy now clicked", product.types);
+    navigate(`/checkout/${product.id}/${product.types}`);
   };
 
   useEffect(() => {
-    axios.get(`https://algoder.onrender.com/api/products/${id}/`)
+    API.get(`/products/${id}/`)
       .then(res => {
         setProduct(res.data);
         const images = [
@@ -76,7 +78,7 @@ const ProductDetail = () => {
   }, [id]);
 
   if (!product) {
-    return <div className="text-center py-20 text-gray-400">Loading product details...</div>;
+    return <div className="text-center py-20 px-5 text-gray-400">Loading product details...</div>;
   }
 
   const {
