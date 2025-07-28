@@ -17,7 +17,7 @@ const heroContent = {
       label: "About More",
       type: "secondary",
       action: () => {
-        window.location.href = "/about"; // अपने 'About' पेज की path डालें
+        window.location.href = "/#/about"; // अपने 'About' पेज की path डालें
       },
     },
   ],

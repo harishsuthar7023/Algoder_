@@ -1,8 +1,30 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import testimonialContent from "../content/testimonialContent";
 
+const getRandomTestimonials = (all, count = 3) => {
+  const shuffled = [...all].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+};
+
 const CustomerTestimonials = () => {
+  const [visibleTestimonials, setVisibleTestimonials] = useState(() =>
+    getRandomTestimonials(testimonialContent.testimonials)
+  );
+  const [fade, setFade] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFade(false); // Start fade out
+      setTimeout(() => {
+        setVisibleTestimonials(getRandomTestimonials(testimonialContent.testimonials));
+        setFade(true); // Start fade in
+      }, 500); // Wait 500ms for fade-out before updating
+    }, 8000); // Change every 8 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="bg-neutral-800 text-white pt-6 pb-10 px-4">
       <div className="max-w-7xl mx-auto px-6 mb-10">
@@ -14,8 +36,12 @@ const CustomerTestimonials = () => {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6 max-w-7xl mx-auto">
-        {testimonialContent.testimonials.map((review, idx) => (
+      <div
+        className={`grid md:grid-cols-3 gap-6 max-w-7xl mx-auto transition-opacity duration-500 ${
+          fade ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        {visibleTestimonials.map((review, idx) => (
           <div
             key={idx}
             className="bg-[#303030] p-6 rounded-2xl shadow hover:shadow-xl transition-all duration-300"

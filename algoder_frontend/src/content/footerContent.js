@@ -11,7 +11,7 @@ import {
 
 // Brand Info
 export const brandInfo = {
-  name: "YourBrand",
+  name: "ALGODER",
   description:
     "We offer quality products with secure checkout and instant digital delivery.",
 };
@@ -19,24 +19,24 @@ export const brandInfo = {
 // Quick Links
 export const quickLinks = [
   { label: "Home", href: "/" },
-  { label: "Products", href: "/products" },
-  { label: "About Us", href: "/about" },
-  { label: "Contact", href: "/contact" },
+  { label: "Products", href: "/#/products" },
+  { label: "About Us", href: "/#/about" },
+  { label: "Contact", href: "/#/contact" },
 ];
 
 // Contact Info
 export const contactInfo = [
   {
     icon: MapPin,
-    text: "Jaipur, Rajasthan, India",
+    text: "NATHDWARA, Rajasthan, India",
   },
   {
     icon: Phone,
-    text: "+91-9876543210",
+    text: "+91-6376076985",
   },
   {
     icon: Mail,
-    text: "support@yourbrand.in",
+    text: "algoder09@gmail.com",
   },
 ];
 
