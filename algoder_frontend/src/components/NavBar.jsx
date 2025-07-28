@@ -4,7 +4,7 @@ import { Menu, X, UserCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
-// const navLinks = ["Home", "Products","Courses", "Orders", "About","Checkout","Mycourse"];
+
 const navLinks = ["Home", "Products", "Orders", "About"];
 
 export default function Navbar() {
@@ -13,24 +13,24 @@ export default function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [username, setUsername] = useState("");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
   const dropdownRef = useRef(null);
+  const mobileDropdownRef = useRef(null); // ✅ ref for mobile dropdown
+
   const navigate = useNavigate();
   const location = useLocation();
-  // const [message, setMessage] = useState('');
 
   useEffect(() => {
-  const fetchProtected = async () => {
-    try {
-      const res = await API.get('/protected/');
-      // setMessage(res.data.message);
-    } catch (err) {
-      console.error('Auth failed, redirecting to login:', err);
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      // navigate('/');
-    }
-  };
-  fetchProtected();
+    const fetchProtected = async () => {
+      try {
+        const res = await API.get('/protected/');
+      } catch (err) {
+        console.error('Auth failed, redirecting to login:', err);
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+      }
+    };
+    fetchProtected();
   }, [navigate]);
 
   useEffect(() => {
@@ -51,6 +51,20 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (
+        isOpen &&
+        mobileDropdownRef.current &&
+        !mobileDropdownRef.current.contains(event.target)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [isOpen]);
+
+  useEffect(() => {
     document.body.style.overflow = showLogoutConfirm ? "hidden" : "auto";
   }, [showLogoutConfirm]);
 
@@ -69,7 +83,7 @@ export default function Navbar() {
       navigate("/mycourse");
     } else if (link === "Courses") {
       navigate("/courses");
-    } else{
+    } else {
       navigate(`/${link.toLowerCase()}`);
     }
     setIsOpen(false);
@@ -89,21 +103,14 @@ export default function Navbar() {
         <div className="hidden md:flex items-center space-x-8">
           {navLinks.map((link, idx) => {
             const path =
-              link === "Home"
-                ? "/"
-                : link === "Orders"
-                ? "/myorders"
-                : link === "Positons"
-                ? "/positions"
-                : link === "About"
-                ? "/about"
-                : link === "Checkout"
-                ? "/ordercheck"
-                : link === "Mycourse"
-                ? "/mycourse"
-                : link === "Courses"
-                ? "/courses"
-                : `/${link.toLowerCase()}`;
+              link === "Home" ? "/" :
+              link === "Orders" ? "/myorders" :
+              link === "Positons" ? "/positions" :
+              link === "About" ? "/about" :
+              link === "Checkout" ? "/ordercheck" :
+              link === "Mycourse" ? "/mycourse" :
+              link === "Courses" ? "/courses" :
+              `/${link.toLowerCase()}`;
 
             const isActive = location.pathname === path;
 
@@ -112,9 +119,7 @@ export default function Navbar() {
                 key={idx}
                 onClick={() => handleNavClick(link)}
                 className={`${
-                  isActive
-                    ? "text-blue-600 font-semibold "
-                    : "text-gray-700 hover:text-blue-600"
+                  isActive ? "text-blue-600 font-semibold " : "text-gray-700 hover:text-blue-600"
                 } dark:text-gray-900 transition duration-300`}
               >
                 {link}
@@ -122,7 +127,6 @@ export default function Navbar() {
             );
           })}
 
-          
           {isLoggedIn ? (
             <div className="relative" ref={dropdownRef}>
               <div
@@ -134,28 +138,26 @@ export default function Navbar() {
 
               {/* Dropdown Menu */}
               <AnimatePresence>
-              {showDropdown && (
-                <motion.div
+                {showDropdown && (
+                  <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.3 }}
                     className="absolute right-0 mt-4 w-48 backdrop-blur-md bg-white/80 rounded-md shadow-lg z-50 p-4"
                   >
-
-                  <p className="text-gray-800 text-sm mb-2 font-semibold">
-                    👋 Hello, {username}
-                  </p>
-                  <button
-                    onClick={() => setShowLogoutConfirm(true)}
-                    className="bg-red-500 text-white px-3 py-1 rounded w-full text-sm"
-                  >
-                    Logout
-                  </button>
-                </motion.div>
-              )}
+                    <p className="text-gray-800 text-sm mb-2 font-semibold">
+                      👋 Hello, {username}
+                    </p>
+                    <button
+                      onClick={() => setShowLogoutConfirm(true)}
+                      className="bg-red-500 text-white px-3 py-1 rounded w-full text-sm"
+                    >
+                      Logout
+                    </button>
+                  </motion.div>
+                )}
               </AnimatePresence>
-
             </div>
           ) : (
             <button
@@ -165,16 +167,15 @@ export default function Navbar() {
               Login
             </button>
           )}
-          
         </div>
 
         {/* Mobile Menu Icon */}
         <div className="md:hidden">
           <button onClick={() => setIsOpen(!isOpen)}>
             {isOpen ? (
-              <X className="w-6 h-6 text-gray-800" />
+              <X className="w-8 h-8 text-gray-800 pt-2" />
             ) : (
-              <Menu className="w-6 h-6 text-gray-800" />
+              <Menu className="w-8 h-8 text-gray-800 pt-2" />
             )}
           </button>
         </div>
@@ -184,6 +185,7 @@ export default function Navbar() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            ref={mobileDropdownRef} // ✅ Added ref here
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
@@ -193,21 +195,14 @@ export default function Navbar() {
             <ul className="flex flex-col space-y-4">
               {navLinks.map((link, idx) => {
                 const path =
-                  link === "Home"
-                    ? "/"
-                    : link === "Orders"
-                    ? "/myorders"
-                    : link === "Positons"
-                    ? "/positions"
-                    : link === "About"
-                    ? "/about"
-                    : link === "Checkout"
-                    ? "/ordercheck"
-                    : link === "Mycourse"
-                    ? "/mycourse"
-                    : link === "Courses"
-                    ? "/courses"
-                    : `/${link.toLowerCase()}`;
+                  link === "Home" ? "/" :
+                  link === "Orders" ? "/myorders" :
+                  link === "Positons" ? "/positions" :
+                  link === "About" ? "/about" :
+                  link === "Checkout" ? "/ordercheck" :
+                  link === "Mycourse" ? "/mycourse" :
+                  link === "Courses" ? "/courses" :
+                  `/${link.toLowerCase()}`;
 
                 const isActive = location.pathname === path;
 
