@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import Product from "../components/Product";
+import Product from "../components/Products";
 import API from "../utils/api";
 
 
