@@ -6,8 +6,7 @@ import API from "../utils/api";
 
 export default function CheckoutPage() {
   const cashfreeRef = useRef(null);
-  const { id , types} = useParams();
-  console.log(id, types);
+  const { id, types } = useParams();
 
   const [product, setProduct] = useState(null);
   const [formData, setFormData] = useState({
@@ -21,7 +20,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (types === 'course') {
+        if (types === "course") {
           const res = await API.get(`/course/${id}/`);
           setProduct(res.data);
         } else {
@@ -39,7 +38,8 @@ export default function CheckoutPage() {
   useEffect(() => {
     const loadCashfreeSDK = async () => {
       try {
-        cashfreeRef.current = await load({ mode: "sandbox" }); // use 'production' in live
+        cashfreeRef.current = await load({ mode: "production" });
+        // console.log("Cashfree SDK loaded successfully", cashfreeRef.current);
       } catch (error) {
         console.error("Cashfree SDK load failed:", error);
       }
@@ -59,15 +59,10 @@ export default function CheckoutPage() {
     e.preventDefault();
     if (!product) return;
 
-    if (types === 'course') { 
-      var prc = product.title;
-    } else {
-      var prc = product.name;
-    }
+    const prc = types === "course" ? product.title : product.name;
 
     try {
       const payload = {
-
         email: formData.email,
         phone: formData.phone,
         firstName: formData.firstName,
@@ -77,26 +72,26 @@ export default function CheckoutPage() {
         product_name: prc,
       };
 
-      const token = localStorage.getItem("access_token"); // ya jahan bhi aap token store kar rahe ho
+      const token = localStorage.getItem("access_token");
 
-      const res = await API.post(
-        "/create-order/",
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,  // 👈 JWT token bhej rahe ho
-          },
-        }
-      );
+      const res = await API.post("/create-order/", payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (res.data.payment_session_id) {
         const checkoutOptions = {
           paymentSessionId: res.data.payment_session_id,
-          // returnUrl: `https://algoder-nmqo.onrender.com/#/ordercheck`,
-          returnUrl: `http://localhost:5173/#/ordercheck`,
+          returnUrl: `https://www.algoder.in/#/ordercheck`,
         };
+        console.log("Checkout options:", checkoutOptions);
 
-        await cashfreeRef.current.checkout(checkoutOptions);
+        if (cashfreeRef.current && cashfreeRef.current.checkout) {
+          await cashfreeRef.current.checkout(checkoutOptions);
+        } else {
+          console.error("Cashfree SDK not ready");
+        }
       } else {
         alert("Payment session ID not received.");
       }
@@ -107,43 +102,80 @@ export default function CheckoutPage() {
   };
 
   if (!product) {
-    return <div className="text-center py-10">Loading product...</div>;
+    return <div className="text-center text-white py-10">Loading product...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex justify-center items-center p-6">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl flex flex-col md:flex-row overflow-hidden">
-        {/* Form */}
-        <div className="w-full md:w-2/3 p-6 space-y-4">
-          <h2 className="text-2xl font-bold">Checkout</h2>
+    <div className="min-h-screen bg-[#303030] flex justify-center items-center p-6">
+      <div className="bg-neutral-800 text-white rounded-lg shadow-2xl w-full max-w-5xl flex flex-col md:flex-row overflow-hidden border border-gray-700">
+        {/* Form Section */}
+        <div className="w-full md:w-2/3 p-8 space-y-6">
+          <h2 className="text-3xl font-bold text-blue-600">Checkout</h2>
           <form onSubmit={handlePayment} className="space-y-4">
-            <input type="text" name="firstName" placeholder="Full Name" onChange={handleChange} className="w-full p-3 border rounded" required />
-            <input type="email" name="email" placeholder="Email" onChange={handleChange} className="w-full p-3 border rounded" required />
-            <input type="tel" name="phone" placeholder="Phone" onChange={handleChange} className="w-full p-3 border rounded" required />
-            <input type="text" name="address" placeholder="Address" onChange={handleChange} className="w-full p-3 border rounded" required />
-            <input type="text" name="company_name" placeholder="Company Name (Optional)" onChange={handleChange} className="w-full p-3 border rounded" />
-            <button type="submit" className="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-700 transition">
+            <input
+              type="text"
+              name="firstName"
+              placeholder="Full Name"
+              onChange={handleChange}
+              className="w-full p-3 bg-[#404040] border border-gray-600 rounded text-white placeholder-gray-400"
+              required
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              onChange={handleChange}
+              className="w-full p-3 bg-[#404040] border border-gray-600 rounded text-white placeholder-gray-400"
+              required
+            />
+            <input
+              type="tel"
+              name="phone"
+              placeholder="Phone"
+              onChange={handleChange}
+              className="w-full p-3 bg-[#404040] border border-gray-600 rounded text-white placeholder-gray-400"
+              required
+            />
+            <input
+              type="text"
+              name="address"
+              placeholder="Address"
+              onChange={handleChange}
+              className="w-full p-3 bg-[#404040] border border-gray-600 rounded text-white placeholder-gray-400"
+              required
+            />
+            <input
+              type="text"
+              name="company_name"
+              placeholder="Company Name (Optional)"
+              onChange={handleChange}
+              className="w-full p-3 bg-[#404040] border border-gray-600 rounded text-white placeholder-gray-400"
+            />
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-black font-bold p-3 rounded hover:bg-blue-700 transition duration-300"
+            >
               Proceed to Payment
             </button>
           </form>
         </div>
 
-        {/* Product Summary */}
-        <div className="w-full md:w-1/3 bg-gray-50 p-6">
-          <h3 className="text-xl font-semibold mb-2">Order Summary</h3>
-          <div className="space-y-2">
-            <p className="font-medium text-gray-800">{product.name}</p>
-            <p className="text-lg font-bold text-gray-900">₹{product.price}</p>
-            <hr className="my-2" />
-            <div className="flex justify-between text-sm text-gray-600">
+        {/* Summary Section */}
+        <div className="w-full md:w-1/3 bg-[#222222] p-8">
+          <h3 className="text-xl font-semibold mb-4 border-b border-gray-700 pb-2">Order Summary</h3>
+          <div className="space-y-3 text-sm">
+            <p className="font-medium text-gray-300">{product.name}</p>
+            <p className="text-2xl font-bold text-white">₹{product.price}</p>
+            <hr className="border-gray-600 my-3" />
+            <div className="flex justify-between text-gray-400">
               <span>Subtotal</span>
               <span>₹{product.price}</span>
             </div>
-            <div className="flex justify-between text-sm text-gray-600">
+            <div className="flex justify-between text-gray-400">
               <span>Tax</span>
               <span>₹0</span>
             </div>
-            <div className="flex justify-between font-semibold text-gray-800">
+            <div className="flex justify-between font-semibold text-gray-200 border-t border-gray-600 pt-2">
               <span>Total</span>
               <span>₹{product.price}</span>
             </div>

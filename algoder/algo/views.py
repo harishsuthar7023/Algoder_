@@ -31,7 +31,7 @@ from rest_framework.exceptions import PermissionDenied
 
 app_id = settings.CASHFREE_APP_ID
 secret_key = settings.CASHFREE_SECRET_KEY
-# api_base = settings.CASHFREE_API_BASE
+api_base = settings.CASHFREE_API_BASE
 
 @api_view(['POST'])
 def register_user(request):
@@ -178,10 +178,12 @@ def create_cashfree_order(request):
         "Accept": "application/json"
     }
 
-    response = requests.post("https://sandbox.cashfree.com/pg/orders", json=payload, headers=headers)
+    response = requests.post("https://api.cashfree.com/pg/orders", json=payload, headers=headers)
+    print(response)
 
     if response.status_code in [200, 201]:
         data = response.json()
+        print(data)
         return JsonResponse({
             "payment_session_id": data.get("payment_session_id"),
             "order_id": order_id
@@ -215,7 +217,7 @@ def verify_order_status(request):
             order_id = data.get("order_id")
             expected_amount = float(data.get("amount"))
 
-            url = "https://test.cashfree.com/api/v1/order/info/status"
+            url = "https://api.cashfree.com/api/v1/order/info/status"
             payload = {
                 "appId": app_id,
                 "secretKey": secret_key,
@@ -272,9 +274,6 @@ class UserProfileView(APIView):
             "email": user.email,
             "is_superuser": user.is_superuser,
         })
-
-
-
 
 
 def get_client_ip(request):

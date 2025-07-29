@@ -57,6 +57,7 @@ const ProductDetail = () => {
   const navigate = useNavigate();
 
   const handleBuyNow = () => {
+    
     // console.log("Buy now clicked", product.types);
     navigate(`/checkout/${product.id}/${product.types}`);
   };
