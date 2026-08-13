@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../utils/api";
-import DashboardLayout from "../../components/Dashboard/DashboardLayout";
+import DashboardLayout from "../../components/Dashboard/Dashboardlayout";
 import { StatCard, Card, ResponsiveTable, Badge } from "../../components/Dashboard/ui";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 

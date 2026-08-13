@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import API from "../../utils/api";
-import DashboardLayout from "../../components/Dashboard/DashboardLayout";
+import DashboardLayout from "../../components/Dashboard/Dashboardlayout";
 import { Button } from "../../components/Dashboard/ui";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../../components/ProductCard";

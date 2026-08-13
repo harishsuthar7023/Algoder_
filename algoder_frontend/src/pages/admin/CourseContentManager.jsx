@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../../utils/api";
-import DashboardLayout from "../../components/Dashboard/DashboardLayout";
+import DashboardLayout from "../../components/Dashboard/Dashboardlayout";
 import { Card, Field, Button } from "../../components/Dashboard/ui";
 
 const emptyVideoForm = {
