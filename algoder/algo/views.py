@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -8,24 +7,16 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import viewsets
-from .serializers import ProductSerializer,OrderSerializer
 import json
 import requests
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import uuid
 from django.conf import settings
-from rest_framework.decorators import api_view
-from rest_framework.parsers import MultiPartParser, FormParser
-from .serializers import TopicSerializer
-from .models import Topic, Video
-from .models import SiteVisit
 from rest_framework.permissions import AllowAny
 from django.utils import timezone
 from rest_framework import generics
-from .models import Course
-from .serializers import CourseSerializer,CourseDetailSerializer,VideoSerializer,SiteContentSerializer
-from rest_framework.exceptions import PermissionDenied
+from .serializers import CourseSerializer,CourseDetailSerializer,VideoSerializer,SiteContentSerializer,TopicSerializer,ProductSerializer,OrderSerializer
 import firebase_admin
 from firebase_admin import credentials, db
 import datetime as dt
@@ -34,7 +25,7 @@ from datetime import timezone as tz
 from dateutil import parser
 import logging
 
-from .models import Product, Order, Getfile, ProductImage, ProductDetail, ProductDescription,SiteContent
+from .models import Product, Order, Getfile, ProductImage, ProductDetail, ProductDescription,SiteContent,Topic, Video,SiteVisit,Course
 
 logger = logging.getLogger(__name__)
 
