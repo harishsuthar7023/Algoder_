@@ -38,7 +38,8 @@ export default function CheckoutPage() {
   useEffect(() => {
     const loadCashfreeSDK = async () => {
       try {
-        cashfreeRef.current = await load({ mode: "sandbox" });
+        cashfreeRef.current = await load({ mode: "production" });
+        // cashfreeRef.current = await load({ mode: "sandbox" });
       } catch (error) {
         console.error("Cashfree SDK load failed:", error);
       }
@@ -87,7 +88,8 @@ export default function CheckoutPage() {
       if (res.data.payment_session_id) {
         await cashfreeRef.current.checkout({
           paymentSessionId: res.data.payment_session_id,
-          returnUrl: `http://localhost:5173/#/ordercheck`,
+          returnUrl: `http://algoder.onrender.com/#/ordercheck`,
+          // returnUrl: `http://localhost:5173/#/ordercheck`,
         });
       } else {
         alert("Payment session ID not received.");

@@ -236,8 +236,8 @@ def create_cashfree_order(request):
         "Accept": "application/json"
     }
 
-    response = requests.post("https://sandbox.cashfree.com/pg/orders", json=payload, headers=headers)
-    # response = requests.post("https://api.cashfree.com/pg/orders", json=payload, headers=headers)
+    # response = requests.post("https://sandbox.cashfree.com/pg/orders", json=payload, headers=headers)
+    response = requests.post("https://api.cashfree.com/pg/orders", json=payload, headers=headers)
     data = response.json()
     # logger.info(response)
 
@@ -311,8 +311,8 @@ def verify_order_status(request):
 
             expected_amount = float(data.get("amount"))
 
-            # url = "https://api.cashfree.com/api/v1/order/info/status" # For production
-            url = "https://test.cashfree.com/api/v1/order/info/status" # For sandbox/testing
+            url = "https://api.cashfree.com/api/v1/order/info/status" # For production
+            # url = "https://test.cashfree.com/api/v1/order/info/status" # For sandbox/testing
             payload = {
                 "appId": app_id,
                 "secretKey": secret_key,

@@ -20,16 +20,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG')
 
 # Update with your actual domain name or Render URL
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'algoder.onrender.com').split(',')
-# ALLOWED_HOSTS = [
-#     "api.algoder.in",
-#     "localhost",
-#     "127.0.0.1",
-#     'algoder.onrender.com',
-# ]
+# ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'algoder.onrender.com').split(',')
+ALLOWED_HOSTS = [
+    "api.algoder.in",
+    "localhost",
+    "127.0.0.1",
+    'algoder.onrender.com',
+]
 
 
 # Application definition
@@ -188,20 +188,20 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800 # 100MB
 
 
 #for testing
-CORS_ALLOW_ALL_ORIGINS = True 
+# CORS_ALLOW_ALL_ORIGINS = True 
 
 #for production
 
-# CORS_ALLOW_ALL_ORIGINS = False
-# CORS_ALLOWED_ORIGINS = [
-#     "https://algoder-nmqo.onrender.com",  # ✅ Replace with your frontend domain
-#     # "https://www.algoder.in",  # ✅ Replace with your frontend domain
-# ]
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = [
+    "https://algoder-nmqo.onrender.com",  # ✅ Replace with your frontend domain
+    # "https://www.algoder.in",  # ✅ Replace with your frontend domain
+]
 
-# CSRF_TRUSTED_ORIGINS = [
-#     "https://algoder-nmqo.onrender.com",
-#     # "https://api.algoder.in",
-# ]
+CSRF_TRUSTED_ORIGINS = [
+    "https://algoder-nmqo.onrender.com",
+    # "https://api.algoder.in",
+]
 
 
 # HTTPS security
