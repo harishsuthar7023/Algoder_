@@ -16,6 +16,8 @@ const AddAdminProduct = () => {
     is_active: true,
     homepage: false,
     file_url: "",
+    video_url_1: "",   // 👈 naya
+    video_url_2: "",   // 👈 naya
   });
 
   const [images, setImages] = useState([]);
@@ -244,6 +246,29 @@ const AddAdminProduct = () => {
               onChange={handleChange}
               step="0.01"
               placeholder="0"
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium">Video URL 1 (YouTube, optional)</label>
+            <input
+              type="url"
+              name="video_url_1"
+              value={formData.video_url_1}
+              onChange={handleChange}
+              placeholder="https://youtu.be/..."
+              className="w-full px-4 py-2 rounded-md bg-neutral-700 text-white"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 text-sm font-medium">Product Url</label>
+            <input
+              type="url"
+              name="video_url_2"
+              value={formData.video_url_2}
+              onChange={handleChange}
+              placeholder="https://youtu.be/..."
+              className="w-full px-4 py-2 rounded-md bg-neutral-700 text-white"
             />
           </div>
 

@@ -1,0 +1,15 @@
+{
+    "heading": "Empower Your Trading with ALGODER",
+    "highlight": "ALGODER",
+    "subheading": "Build, test, and deploy your own algorithmic trading strategies with ease and confidence.",
+    "buttons": {
+        "label": "Chat on WhatsApp",
+        "type": "primary",
+        "action": "https://wa.me/916376076985",
+    },
+    {
+        "label": "About More",
+        "type": "secondary",
+        "action": "/#/about"
+    }
+}

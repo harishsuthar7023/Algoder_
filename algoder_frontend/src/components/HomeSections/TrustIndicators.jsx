@@ -4,7 +4,7 @@ import trustFeatures, { trustHeader } from "../../content/trustFeatures";
 
 const TrustIndicators = () => {
   return (
-    <div className="relative bg-neutral-900 py-16 md:py-20 px-4 text-white overflow-hidden">
+    <div className="relative bg-neutral-900 py-5 md:py-5 px-4 text-white overflow-hidden">
       {/* Ambient glow orbs */}
       <div className="pointer-events-none absolute top-0 left-1/3 w-96 h-96 bg-blue-500/[0.07] rounded-full blur-[120px]" />
       <div className="pointer-events-none absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-400/[0.06] rounded-full blur-[120px]" />

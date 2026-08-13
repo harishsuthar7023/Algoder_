@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Star, Quote } from "lucide-react";
-import testimonialContent from "../../content/testimonialContent";
+import { useSiteContent } from "../../hooks/useSiteContent";
 
 const getRandomTestimonials = (all, count = 3) => {
   const shuffled = [...all].sort(() => 0.5 - Math.random());
@@ -8,12 +8,24 @@ const getRandomTestimonials = (all, count = 3) => {
 };
 
 const CustomerTestimonials = () => {
-  const [visibleTestimonials, setVisibleTestimonials] = useState(() =>
-    getRandomTestimonials(testimonialContent.testimonials)
-  );
+  const { content, loading } = useSiteContent();
+  const testimonialContent = content.testimonials || {};
+
+  // ✅ Hooks hamesha top pe, unconditionally
+  const [visibleTestimonials, setVisibleTestimonials] = useState([]);
   const [fade, setFade] = useState(true);
 
+  // Jab data aa jaye (loading false ho aur testimonials mil jayein), initial random set karo
   useEffect(() => {
+    if (testimonialContent.testimonials?.length) {
+      setVisibleTestimonials(getRandomTestimonials(testimonialContent.testimonials));
+    }
+  }, [testimonialContent.testimonials]);
+
+  // Auto-rotate interval
+  useEffect(() => {
+    if (!testimonialContent.testimonials?.length) return;
+
     const interval = setInterval(() => {
       setFade(false);
       setTimeout(() => {
@@ -23,10 +35,27 @@ const CustomerTestimonials = () => {
     }, 8000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [testimonialContent.testimonials]);
+
+  // ✅ Early returns ab hooks ke BAAD
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-900 text-white">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!testimonialContent.heading || !testimonialContent.testimonials?.length) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-900 text-white">
+        Content not available.
+      </div>
+    );
+  }
 
   return (
-    <div className="relative bg-neutral-900 text-white pt-16 pb-20 md:pt-20 md:pb-24 px-4 overflow-hidden">
+    <div className="relative bg-neutral-900 text-white pt-5 pb-5 md:pt-20 md:pb-24 px-4 overflow-hidden">
       {/* Ambient glow orbs */}
       <div className="pointer-events-none absolute top-0 right-1/4 w-96 h-96 bg-blue-500/[0.07] rounded-full blur-[120px]" />
       <div className="pointer-events-none absolute bottom-0 left-1/3 w-96 h-96 bg-cyan-400/[0.06] rounded-full blur-[120px]" />
@@ -56,9 +85,7 @@ const CustomerTestimonials = () => {
             key={idx}
             className="group relative bg-white/[0.03] border border-white/10 p-6 rounded-2xl overflow-hidden backdrop-blur-sm hover:border-blue-400/30 hover:bg-white/[0.06] hover:-translate-y-1 transition-all duration-300"
           >
-            {/* top glass shine */}
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
             <Quote className="absolute top-5 right-5 w-8 h-8 text-white/5" />
 
             <div className="flex items-center gap-3 mb-4">
@@ -68,9 +95,7 @@ const CustomerTestimonials = () => {
                 className="w-11 h-11 rounded-full object-cover border border-white/10"
               />
               <div>
-                <h4 className="text-white font-semibold text-sm">
-                  {review.name}
-                </h4>
+                <h4 className="text-white font-semibold text-sm">{review.name}</h4>
                 <p className="text-neutral-500 text-xs">{review.role}</p>
               </div>
             </div>
@@ -81,11 +106,8 @@ const CustomerTestimonials = () => {
               ))}
             </div>
 
-            <p className="text-neutral-300 text-sm leading-relaxed">
-              {review.message}
-            </p>
+            <p className="text-neutral-300 text-sm leading-relaxed">{review.message}</p>
 
-            {/* subtle bottom glow on hover */}
             <div className="pointer-events-none absolute -bottom-8 left-1/2 -translate-x-1/2 w-40 h-16 bg-blue-400/0 group-hover:bg-blue-400/10 blur-2xl rounded-full transition-all duration-500" />
           </div>
         ))}

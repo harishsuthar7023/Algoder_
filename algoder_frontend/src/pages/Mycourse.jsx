@@ -1,82 +1,91 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { motion } from "framer-motion";
 import Prism from "prismjs";
 import "prismjs/themes/prism-tomorrow.css";
-import "prismjs/components/prism-python";
+import "prismjs/components/prism-javascript";
+import "prismjs/components/prism-json";
 import API from "../utils/api";
-import { useNavigate } from "react-router-dom";
-import Navbar from '../components/NavBar';
+import {useParams, useNavigate } from "react-router-dom";
+import Navbar from "../components/NavBar";
 
+import {
+  Menu,
+  X,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  Check,
+  Lock,
+  FileText,
+} from "lucide-react";
 
 export default function AlgoCoursePlatform() {
+  const { id } = useParams();
   const [courseData, setCourseData] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [expandedTopics, setExpandedTopics] = useState([]);
-  const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
-  const [message, setMessage] = useState('');
-  const navigate = useNavigate();
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [checkLogin, setCheckLogin] = useState("");
+  const [copiedIndex, setCopiedIndex] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProtected = async () => {
       try {
-        const res = await API.get('protected/');
-        // setMessage(res.data.message);
+        await API.get("protected/");
       } catch (err) {
-        console.error('Auth failed, redirecting to login:', err);
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        setCheckLogin("You need to be logged in to continue.")
-        // navigate('/login');
+        console.error("Auth failed, redirecting to login:", err);
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        setCheckLogin("You need to be logged in to continue.");
+        setLoading(false);
       }
     };
-  fetchProtected();
+    fetchProtected();
   }, [navigate]);
 
-  const hendelLogin = (() => {
-    // setCheckLogin("You need to be logged in to continue.")
-    navigate("/login")
-  }
-  )
-
-  const Buycourse = (() => {
-    // setCheckLogin("You need to be logged in to continue.")
-    navigate("/courses")
-  }
-  )
-
   useEffect(() => {
-    API.get("/course-data/")
+    if (checkLogin) return;
+    API.get(`/course/${id}/content/`)
       .then((res) => {
-        if (res.data.success === false || res.data.data?.length === 0) {
-          setErrorMessage("🚫 You haven’t purchased this course yet. Please buy the course to unlock the content.");
+        if (res.data.success === false) {
+          setErrorMessage(
+            "You haven't purchased this course yet. Please buy the course to unlock the content."
+          );
           return;
         }
 
-        const topics = res.data.data || res.data;
+        const topics = res.data.data?.topics || [];   // 👈 fix: topics andar se nikalo
+
+        if (topics.length === 0) {
+          setErrorMessage("This course has no content yet. Please check back later.");
+          return;
+        }
 
         setCourseData(topics);
-
-        if (topics.length > 0) {
-          setSelectedTopic(topics[0]);
-          if (topics[0].videos && topics[0].videos.length > 0) {
-            setSelectedVideo(topics[0].videos[0]);
-          }
-          setExpandedTopics([0]);
+        setSelectedTopic(topics[0]);
+        if (topics[0].videos?.length > 0) {
+          setSelectedVideo(topics[0].videos[0]);
         }
+        setExpandedTopics([0]);
       })
       .catch((err) => {
         console.error("Course fetch error:", err);
-        setErrorMessage("❌ Something went wrong. Please try again later.");
-      });
-  }, []);
+        setErrorMessage("Something went wrong. Please try again later.");
+      })
+      .finally(() => setLoading(false));
+  }, [checkLogin, id]);
 
   useEffect(() => {
     Prism.highlightAll();
   }, [selectedVideo]);
+
+  const handleLogin = () => navigate("/login");
+  const handleBuyCourse = () => navigate("/courses");
 
   const handleTopicClick = (index) => {
     setSelectedTopic(courseData[index]);
@@ -84,301 +93,334 @@ export default function AlgoCoursePlatform() {
     setExpandedTopics((prev) =>
       prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
     );
-    setMobileDropdownOpen(false); // close on select
+    setMobileSidebarOpen(false);
   };
 
   const handleVideoClick = (topic, video) => {
     setSelectedTopic(topic);
     setSelectedVideo(video);
+    setMobileSidebarOpen(false);
   };
 
   const convertToEmbedUrl = (url) => {
+    if (!url) return "";
+
+    // youtube.com/watch?v=VIDEO_ID
     if (url.includes("youtube.com/watch?v=")) {
-      return url.replace("watch?v=", "embed/");
+      const videoId = url.split("watch?v=")[1].split("&")[0];
+      return `https://www.youtube.com/embed/${videoId}`;
     }
+
+    // youtu.be/VIDEO_ID
+    if (url.includes("youtu.be/")) {
+      const videoId = url.split("youtu.be/")[1].split("?")[0];
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+
+    // already embed format ya kuch aur
     return url;
   };
 
-  if (checkLogin) {
-    return (
-      <>
+  const handleCopy = (code, idx) => {
+    navigator.clipboard.writeText(code);
+    setCopiedIndex(idx);
+    setTimeout(() => setCopiedIndex(null), 1500);
+  };
+
+  // Shared centered-card shell for login / access-denied / loading states
+  const StateCard = ({ children }) => (
+    <>
       <Navbar />
-      <div className="flex items-center justify-center min-h-[100vh] bg-neutral-800">
-        <div className="w-full max-w-md bg-[#303030] text-white p-8 rounded-2xl shadow-2xl border border-neutral-700">
-          <h2 className="text-2xl font-bold text-red-400 mb-3">LOGIN ALGODER</h2>
-          <p className="text-gray-300 mb-6">
-            {checkLogin || "You need to be logged in to continue."}
-          </p>
-          <button
-            onClick={hendelLogin}
-            className="w-full bg-red-500 hover:bg-red-600 transition text-white font-semibold py-2 rounded-lg shadow-md"
-          >
-            Login
-          </button>
+      <div className="relative flex items-center justify-center min-h-screen bg-neutral-900 px-5 overflow-hidden">
+        <div className="pointer-events-none absolute top-1/4 left-1/3 w-96 h-96 bg-blue-500/[0.07] rounded-full blur-[120px]" />
+        <div className="pointer-events-none absolute bottom-1/4 right-1/3 w-96 h-96 bg-cyan-400/[0.06] rounded-full blur-[120px]" />
+        <div className="relative w-full max-w-md bg-white/[0.03] backdrop-blur-xl text-white p-8 rounded-2xl border border-white/10 text-center">
+          {children}
         </div>
       </div>
-      </>
+    </>
+  );
+
+  if (checkLogin) {
+    return (
+      <StateCard>
+        <div className="w-14 h-14 mx-auto mb-5 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-400/10 border border-blue-400/20 flex items-center justify-center">
+          <Lock className="w-6 h-6 text-blue-400" />
+        </div>
+        <h2 className="text-xl font-semibold text-white mb-2">Sign in required</h2>
+        <p className="text-neutral-400 text-sm mb-6">
+          {checkLogin || "You need to be logged in to continue."}
+        </p>
+        <button
+          onClick={handleLogin}
+          className="w-full bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-400 hover:to-cyan-300 text-neutral-900 font-semibold py-2.5 rounded-lg transition-all"
+        >
+          Log in
+        </button>
+      </StateCard>
+    );
+  }
+
+  if (loading) {
+    return (
+      <StateCard>
+        <div className="w-8 h-8 mx-auto mb-5 border-[3px] border-white/10 border-t-blue-400 rounded-full animate-spin" />
+        <h2 className="text-lg font-semibold text-white mb-1">Loading your course</h2>
+        <p className="text-neutral-400 text-sm">Please wait while we prepare your content.</p>
+      </StateCard>
     );
   }
 
   if (errorMessage) {
     return (
-      <>
-      <Navbar />
-      <div className="flex items-center justify-center min-h-[100vh] bg-neutral-800">
-        <div className="w-full max-w-md bg-[#303030] text-white p-8 rounded-2xl shadow-2xl border border-neutral-700">
-          <h2 className="text-2xl font-bold text-red-400 mb-3">Course Access Denied</h2>
-          <p className="text-gray-300 mb-6">
-            {errorMessage || "You haven’t purchased this course yet. Please buy to unlock all content."}
-          </p>
-          <button
-            onClick={Buycourse}
-            className="w-full bg-red-500 hover:bg-red-600 transition text-white font-semibold py-2 rounded-lg shadow-md"
-          >
-            🔒 Buy Course Now
-          </button>
+      <StateCard>
+        <div className="w-14 h-14 mx-auto mb-5 rounded-xl bg-red-500/10 border border-red-400/20 flex items-center justify-center">
+          <Lock className="w-6 h-6 text-red-400" />
         </div>
-      </div>
-      </>
+        <h2 className="text-xl font-semibold text-white mb-2">Course access denied</h2>
+        <p className="text-neutral-400 text-sm mb-6">{errorMessage}</p>
+        <button
+          onClick={handleBuyCourse}
+          className="w-full bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-400 hover:to-cyan-300 text-neutral-900 font-semibold py-2.5 rounded-lg transition-all"
+        >
+          Buy course now
+        </button>
+      </StateCard>
     );
   }
 
-  if (courseData.length === 0) {
-    return (
-      <>
-      <Navbar />
-      <div className="flex items-center justify-center min-h-[100vh] bg-neutral-800">
-        <div className="w-full max-w-md bg-[#303030] text-white p-8 rounded-2xl shadow-2xl border border-neutral-700 text-center">
-          <h2 className="text-2xl font-semibold text-blue-400 mb-3">Loading Your Course</h2>
-          <p className="text-gray-300 mb-6">Please wait while we prepare your content...</p>
-          <div className="w-10 h-10 mx-auto border-4 border-blue-300 border-t-blue-500 rounded-full animate-spin"></div>
+  // console.log(courseData)
+
+  const TopicList = ({ mobile = false }) => (
+    <div className="flex flex-col space-y-1.5">
+      {courseData.map((topic, idx) => (
+        <div key={idx}>
+          <button
+            onClick={() => handleTopicClick(idx)}
+            className={`w-full flex items-center justify-between text-left py-2.5 px-3 rounded-lg text-sm font-medium transition-colors ${
+              selectedTopic === topic
+                ? "bg-white/10 text-white border border-white/10"
+                : "text-neutral-300 hover:bg-white/5 hover:text-white"
+            }`}
+          >
+            {topic.name}
+            <ChevronDown
+              className={`w-4 h-4 shrink-0 text-neutral-500 transition-transform duration-200 ${
+                expandedTopics.includes(idx) ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+          {expandedTopics.includes(idx) && (
+            <div className="ml-3 mt-1 space-y-1 border-l border-white/10 pl-3">
+              {topic.videos.map((video, vidx) => (
+                <button
+                  key={vidx}
+                  onClick={() => handleVideoClick(topic, video)}
+                  className={`block w-full text-left py-1.5 px-3 rounded-md text-xs sm:text-sm transition-colors ${
+                    selectedVideo?.title === video.title
+                      ? "bg-blue-500/15 text-blue-300 border border-blue-400/20"
+                      : "text-neutral-400 hover:bg-white/5 hover:text-neutral-200"
+                  }`}
+                >
+                  {video.title}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-      </div>
-      </>
-    );
-  }
+      ))}
+    </div>
+  );
 
   return (
     <>
-    <Navbar />
-    <div className="h-screen bg-[#303030]  text-white flex flex-col">
-      {/* Mobile Navbar */}
-      <div className="md:hidden flex justify-between items-center p-4 bg-neutral-800 border-b border-gray-700">
-        <h1 className="text-xl font-bold text-blue-400">Algo Course</h1>
-        <button
-          className="text-white focus:outline-none"
-          onClick={() => setMobileDropdownOpen(!mobileDropdownOpen)}
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      <Navbar />
+      <div className="h-screen bg-neutral-900 text-white flex flex-col overflow-hidden">
+        {/* Mobile top bar */}
+        <div className="md:hidden flex justify-between items-center px-4 py-4 pt-20 bg-white/[0.03] border-b border-white/10 backdrop-blur-xl shrink-0">
+          <span className="text-base font-bold text-white">
+            ALGO<span className="bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">DER</span> course
+          </span>
+          <button
+            className="text-white p-1.5 rounded-lg hover:bg-white/5"
+            onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+            aria-label="Toggle course menu"
           >
-            {mobileDropdownOpen ? (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            )}
-          </svg>
-        </button>
-      </div>
+            {mobileSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
 
-      {/* Dropdown Sidebar for Mobile */}
-      {mobileDropdownOpen && (
-        <div className="md:hidden bg-neutral-800 px-4 py-2 border-b border-gray-700 space-y-2 z-50">
-          {courseData.map((topic, idx) => (
-            <div key={idx}>
-              <button
-                onClick={() => handleTopicClick(idx)}
-                className="w-full text-left py-2 px-3 rounded-lg hover:bg-blue-400 hover:text-black transition"
-              >
-                {topic.name}
-              </button>
-              {expandedTopics.includes(idx) && (
-                <div className="ml-4 mt-2 space-y-1">
-                  {topic.videos.map((video, vidx) => (
-                    <button
-                      key={vidx}
-                      onClick={() => handleVideoClick(topic, video)}
-                      className={`block w-full text-left py-1 px-3 rounded-md text-sm ${
-                        selectedVideo?.title === video.title
-                          ? "bg-blue-400 text-black"
-                          : "bg-[#3a3a3a] hover:bg-blue-300 hover:text-black"
-                      } transition`}
-                    >
-                      {video.title}
-                    </button>
-                  ))}
-                </div>
+        {/* Mobile sidebar */}
+        {mobileSidebarOpen && (
+          <div className="md:hidden bg-neutral-900/95 backdrop-blur-xl px-4 py-4 border-b border-white/10 max-h-[60vh] overflow-y-auto shrink-0">
+            <TopicList mobile />
+          </div>
+        )}
+
+        <div className="flex flex-1 overflow-hidden">
+          {/* Desktop sidebar */}
+          <div className="hidden md:block w-72 shrink-0 bg-white/[0.02] border-r border-white/10 overflow-y-auto pt-24 px-4 pb-6">
+            <h2 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-4 px-1">
+              Course topics
+            </h2>
+            <TopicList />
+          </div>
+
+          {/* Main content */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="max-w-4xl mx-auto px-4 md:px-8 pt-8 md:pt-24 pb-16">
+              {selectedVideo && (
+                <>
+                  <motion.h1
+                    key={selectedVideo.title}
+                    className="text-xl sm:text-2xl md:text-3xl font-black text-white mb-6 tracking-tight"
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    {selectedVideo.title}
+                  </motion.h1>
+
+                  <div className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 bg-black mb-10">
+                    <iframe
+                      key={selectedVideo.video_url}
+                      src={convertToEmbedUrl(selectedVideo.video_url)}
+                      className="w-full h-full"
+                      title={selectedVideo.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+
+                  {/* Documentation */}
+                  {selectedVideo.documentation?.sections && (
+                    <div className="mb-10">
+                      <div className="flex items-center gap-2 mb-5">
+                        <FileText className="w-5 h-5 text-blue-400" />
+                        <h2 className="text-lg md:text-xl font-bold text-white">
+                          {selectedVideo.documentation.title}
+                        </h2>
+                      </div>
+
+                      {selectedVideo.documentation.sections.map((section, idx) => (
+                        <div key={idx} className="mb-6">
+                          {section.heading && (
+                            <h3 className="text-base md:text-lg font-semibold text-white mb-2">
+                              {section.heading}
+                            </h3>
+                          )}
+                          {section.content && (
+                            <ul className="space-y-1.5 text-neutral-400 text-sm md:text-base">
+                              {section.content.map((point, i) => (
+                                <li key={i} className="flex items-start gap-2.5">
+                                  <span className="shrink-0 mt-2 w-1 h-1 rounded-full bg-blue-400" />
+                                  {point}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                          {section.code && (
+                            <div className="mt-4 rounded-xl border border-white/10 overflow-hidden bg-neutral-950">
+                              {/* Terminal title bar */}
+                              <div className="flex items-center justify-between px-4 py-2.5 bg-white/[0.04] border-b border-white/10">
+                                <div className="flex items-center gap-4">
+                                  <div className="flex gap-1.5">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
+                                    <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
+                                    <span className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
+                                  </div>
+                                  <span className="flex items-center gap-1.5 text-xs text-neutral-400">
+                                    <FileText className="w-3.5 h-3.5" />
+                                    {section.code.filename}
+                                  </span>
+                                </div>
+                                <button
+                                  onClick={() => handleCopy(section.code.code, `${idx}`)}
+                                  className="flex items-center gap-1.5 text-neutral-400 hover:text-white text-xs transition-colors"
+                                >
+                                  {copiedIndex === `${idx}` ? (
+                                    <>
+                                      <Check className="w-3.5 h-3.5 text-emerald-400" /> Copied
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy className="w-3.5 h-3.5" /> Copy
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+
+                              {/* Code area */}
+                              <pre className="p-4 overflow-auto text-sm m-0 leading-relaxed">
+                                <code className={`language-${section.code.language}`}>
+                                  {section.code.code}
+                                </code>
+                              </pre>
+                            </div>
+                          )}
+
+
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Prev / Next navigation */}
+                  {selectedTopic && selectedTopic.videos.length > 1 && (
+                    <div className="mt-10 pt-6 border-t border-white/10">
+                      <div className="text-xs text-neutral-500 mb-4">
+                        Compiled by Harish Suthar
+                      </div>
+                      <div className="flex justify-between items-center gap-4 text-sm">
+                        {(() => {
+                          const allVideos = selectedTopic.videos;
+                          const currentIndex = allVideos.findIndex(
+                            (v) => v.title === selectedVideo.title
+                          );
+                          const prevVideo = currentIndex > 0 ? allVideos[currentIndex - 1] : null;
+                          return prevVideo ? (
+                            <button
+                              onClick={() => handleVideoClick(selectedTopic, prevVideo)}
+                              className="flex items-center gap-2 text-neutral-300 hover:text-blue-400 transition-colors min-w-0"
+                            >
+                              <ChevronLeft className="w-4 h-4 shrink-0" />
+                              <span className="truncate">{prevVideo.title}</span>
+                            </button>
+                          ) : (
+                            <div />
+                          );
+                        })()}
+
+                        {(() => {
+                          const allVideos = selectedTopic.videos;
+                          const currentIndex = allVideos.findIndex(
+                            (v) => v.title === selectedVideo.title
+                          );
+                          const nextVideo =
+                            currentIndex < allVideos.length - 1
+                              ? allVideos[currentIndex + 1]
+                              : null;
+                          return nextVideo ? (
+                            <button
+                              onClick={() => handleVideoClick(selectedTopic, nextVideo)}
+                              className="flex items-center gap-2 text-neutral-300 hover:text-blue-400 transition-colors min-w-0 text-right"
+                            >
+                              <span className="truncate">{nextVideo.title}</span>
+                              <ChevronRight className="w-4 h-4 shrink-0" />
+                            </button>
+                          ) : (
+                            <div />
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
-          ))}
-        </div>
-      )}
-
-      <div className="flex flex-1 overflow-hidden ">
-        {/* Sidebar for Desktop */}
-        <div className="hidden md:block w-64 bg-neutral-800 p-4 border-r border-gray-700 overflow-y-auto pt-26">
-          <h2 className="text-xl font-bold mb-6 text-blue-400">Course Topics</h2>
-          <div className="flex flex-col space-y-2">
-            {courseData.map((topic, idx) => (
-              <div key={idx}>
-                <button
-                  onClick={() => handleTopicClick(idx)}
-                  className="w-full text-left  py-2 px-3 rounded-lg hover:bg-blue-400 hover:text-black transition"
-                >
-                  {topic.name}
-                </button>
-                {expandedTopics.includes(idx) && (
-                  <div className="ml-4 mt-2 space-y-1">
-                    {topic.videos.map((video, vidx) => (
-                      <button
-                        key={vidx}
-                        onClick={() => handleVideoClick(topic, video)}
-                        className={`block w-full text-left py-1 px-3 rounded-md text-sm ${
-                          selectedVideo?.title === video.title
-                            ? "bg-blue-400 text-black"
-                            : "bg-[#3a3a3a] hover:bg-blue-300 hover:text-black"
-                        } transition`}
-                      >
-                        {video.title}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
           </div>
         </div>
-
-        {/* Main Content */}
-        <div className="flex-1 p-4 md:p-8 overflow-y-auto ">
-          {selectedVideo && (
-            <>
-              <motion.h1
-                className="text-2xl md:text-3xl font-bold text-white mb-6 pt-18"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                {selectedVideo.title}
-              </motion.h1>
-
-              <div className="w-full aspect-video rounded-2xl overflow-hidden shadow-lg border border-gray-700 bg-black mb-10">
-                <iframe
-                  key={selectedVideo.video_url}
-                  src={convertToEmbedUrl(selectedVideo.video_url)}
-                  className="w-full h-full"
-                  title={selectedVideo.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
-              </div>
-
-              {/* Documentation Section */}
-              {selectedVideo.documentation?.sections && (
-                <div className="mb-10">
-                  <h2 className="text-xl md:text-2xl font-bold text-blue-400 mb-4">
-                    📘 {selectedVideo.documentation.title}
-                  </h2>
-                  {selectedVideo.documentation.sections.map((section, idx) => (
-                    <div key={idx} className="mb-8">
-                      {section.heading && (
-                        <h3 className="text-lg md:text-xl font-semibold text-white mb-2">
-                          {section.heading}
-                        </h3>
-                      )}
-                      {section.content && (
-                        <ul className="list-disc ml-6 space-y-1 text-gray-300 text-sm md:text-base">
-                          {section.content.map((point, i) => (
-                            <li key={i}>{point}</li>
-                          ))}
-                        </ul>
-                      )}
-                      {section.code && (
-                        <div className="mt-4 relative group">
-                          <div className="text-sm text-yellow-400 mb-2">
-                            📄 {section.code.filename}
-                          </div>
-                          <pre className="bg-[#1e1e1e] p-4 rounded-xl overflow-auto text-sm border border-gray-600">
-                            <code className={`language-${section.code.language}`}>
-                              {section.code.code}
-                            </code>
-                          </pre>
-                          <button
-                            onClick={() =>
-                              navigator.clipboard.writeText(section.code.code)
-                            }
-                            className="absolute top-9 right-2 bg-blue-400 text-black text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition hover:bg-blue-300"
-                          >
-                            Copy
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {selectedTopic && selectedTopic.videos.length > 1 && (
-                <div className="mt-12 border-t border-gray-700 pt-6">
-                  <div className="text-sm text-gray-400 mb-4">
-                    ❤️ Compiled by: Harish Suthar
-                  </div>
-                  <div className="flex justify-between text-white text-sm font-medium">
-                    {/* Previous Video */}
-                    {(() => {
-                      const allVideos = selectedTopic.videos;
-                      const currentIndex = allVideos.findIndex(
-                        (v) => v.title === selectedVideo.title
-                      );
-                      const prevVideo = currentIndex > 0 ? allVideos[currentIndex - 1] : null;
-                      return prevVideo ? (
-                        <button
-                          onClick={() => handleVideoClick(selectedTopic, prevVideo)}
-                          className="hover:text-blue-400 flex items-center space-x-1"
-                        >
-                          <span>← Previous</span>
-                          <span className="font-normal text-gray-300 ml-2">{prevVideo.title}</span>
-                        </button>
-                      ) : <div></div>;
-                    })()}
-
-                    {/* Next Video */}
-                    {(() => {
-                      const allVideos = selectedTopic.videos;
-                      const currentIndex = allVideos.findIndex(
-                        (v) => v.title === selectedVideo.title
-                      );
-                      const nextVideo = currentIndex < allVideos.length - 1 ? allVideos[currentIndex + 1] : null;
-                      return nextVideo ? (
-                        <button
-                          onClick={() => handleVideoClick(selectedTopic, nextVideo)}
-                          className="hover:text-blue-400 flex items-center space-x-1"
-                        >
-                          <span className="font-normal text-gray-300 mr-2">{nextVideo.title}</span>
-                          <span>Next →</span>
-                        </button>
-                      ) : <div></div>;
-                    })()}
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </div>
       </div>
-    </div>
     </>
   );
 }

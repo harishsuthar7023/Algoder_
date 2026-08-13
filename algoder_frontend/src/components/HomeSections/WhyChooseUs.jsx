@@ -1,10 +1,23 @@
+// src/components/WhyChooseUs.jsx
 import React from "react";
 import * as Icons from "lucide-react";
-import whyChooseUsContent from "../../content/whyChooseUsContent";
+import { useSiteContent } from "../../hooks/useSiteContent";
 
 export default function WhyChooseUs() {
+  const { content, loading } = useSiteContent();
+  const whyChooseUsContent = content.why_choose_us || {};
+  const features = whyChooseUsContent.features || [];
+
+  if (loading) {
+    return (
+      <section className="relative bg-neutral-900 text-white py-16 md:py-20 px-4 overflow-hidden text-center text-sm text-neutral-400">
+        Loading...
+      </section>
+    );
+  }
+
   return (
-    <section className="relative bg-neutral-900 text-white py-16 md:py-20 px-4 overflow-hidden">
+    <section className="relative bg-neutral-900 text-white py-5 md:py-8 px-4 overflow-hidden">
       {/* Ambient glow orbs */}
       <div className="pointer-events-none absolute top-0 left-1/4 w-96 h-96 bg-blue-500/[0.07] rounded-full blur-[120px]" />
       <div className="pointer-events-none absolute bottom-0 right-1/3 w-96 h-96 bg-cyan-400/[0.06] rounded-full blur-[120px]" />
@@ -25,7 +38,7 @@ export default function WhyChooseUs() {
 
       {/* Feature Grid */}
       <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-7xl mx-auto px-2 sm:px-4">
-        {whyChooseUsContent.features.map((feature, index) => {
+        {features.map((feature, index) => {
           const IconComponent = Icons[feature.icon] || Icons.HelpCircle;
 
           return (

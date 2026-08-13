@@ -1,9 +1,41 @@
 import React from "react";
 import { ArrowRight, MessageCircle } from "lucide-react";
-import callToActionContent from "../../content/callToActionContent";
+// import callToActionContent from "../../content/callToActionContent";
+import { useSiteContent } from "../../hooks/useSiteContent";
+
 
 const CallToActionBanner = () => {
-  const { title, description, buttonLabel, phoneNumber, preFilledMessage } = callToActionContent;
+  const { content, loading } = useSiteContent();
+  const callToActionContent = content.cta_banner || {};
+  // console.log(callToActionContent)
+  const title = callToActionContent.title
+  const  description = callToActionContent.description
+  const  buttonLabel = callToActionContent.buttonLabel
+  const  phoneNumber = callToActionContent.phoneNumber
+  const  preFilledMessage = callToActionContent.preFilledMessage
+
+  if (loading) {
+    return (
+      <>
+        {/* <Navbar /> */}
+        <div className="min-h-screen flex items-center justify-center bg-neutral-900 text-white">
+          Loading...
+        </div>
+      </>
+    );
+  }
+
+  if (!callToActionContent.title) {
+    return (
+      <>
+        {/* <Navbar /> */}
+        <div className="min-h-screen flex items-center justify-center bg-neutral-900 text-white">
+          Content not available.
+        </div>
+      </>
+    );
+  }
+
 
   const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(preFilledMessage)}`;
 
