@@ -91,9 +91,9 @@ export default function CheckoutPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (MODE === "Test") {
-          const urrl = `https://algoder-nmqo.onrender.com/#/ordercheck`;
+        const urrl = `http://localhost:5173/#/ordercheck`;
       }else {
-          const urrl = `http://localhost:5173/#/ordercheck`;
+        const urrl = `https://algoder-nmqo.onrender.com/#/ordercheck`;
         }
 
       if (res.data.payment_session_id) {
