@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import API from "../utils/api";
-import { Menu, X, UserCircle, LogOut, ChevronDown } from "lucide-react";
+import { Menu, X, UserCircle, LogOut, ChevronDown, LayoutDashboard } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
       // case "Mycourse": return "/mycourse";
@@ -10,6 +10,7 @@ const navLinks = ["Home", "Products", "Orders", "About", "Contact","Courses"];
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isSuperuser, setIsSuperuser] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [username, setUsername] = useState("");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -40,6 +41,26 @@ export default function Navbar() {
     setIsLoggedIn(!!token);
     if (storedUser) setUsername(storedUser);
   }, []);
+
+  // Check superuser status for logged-in users, so we can show the Dashboard icon
+  useEffect(() => {
+    const checkSuperuser = async () => {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        setIsSuperuser(false);
+        return;
+      }
+      try {
+        const res = await API.get("/user-profile/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setIsSuperuser(!!res.data.is_superuser);
+      } catch (err) {
+        setIsSuperuser(false);
+      }
+    };
+    checkSuperuser();
+  }, [isLoggedIn]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -152,6 +173,22 @@ export default function Navbar() {
             );
           })}
 
+          {/* Dashboard icon — visible only for logged-in superusers */}
+          {isLoggedIn && isSuperuser && (
+            <button
+              onClick={() => navigate("/dashboard")}
+              title="Dashboard"
+              aria-label="Dashboard"
+              className={`relative p-2 rounded-lg transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/50 ${
+                location.pathname === "/dashboard"
+                  ? "text-white bg-white/10 border border-white/10"
+                  : "text-neutral-300 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <LayoutDashboard className="w-4.5 h-4.5" />
+            </button>
+          )}
+
           <div className="w-px h-5 bg-white/10 mx-2" />
 
           {isLoggedIn ? (
@@ -180,6 +217,17 @@ export default function Navbar() {
                     <p className="text-neutral-200 text-sm mb-3 px-1">
                       Signed in as <span className="font-semibold text-white">{username}</span>
                     </p>
+                    {isSuperuser && (
+                      <button
+                        onClick={() => {
+                          setShowDropdown(false);
+                          navigate("/dashboard");
+                        }}
+                        className="flex items-center gap-2 w-full text-sm text-neutral-200 hover:bg-white/5 rounded-lg px-3 py-2 transition-colors mb-1"
+                      >
+                        <LayoutDashboard className="w-4 h-4 text-blue-400" /> Dashboard
+                      </button>
+                    )}
                     <button
                       onClick={() => setShowLogoutConfirm(true)}
                       className="flex items-center gap-2 w-full text-sm text-red-400 hover:bg-red-500/10 rounded-lg px-3 py-2 transition-colors"
@@ -242,6 +290,20 @@ export default function Navbar() {
                   </li>
                 );
               })}
+              {isLoggedIn && isSuperuser && (
+                <li>
+                  <button
+                    onClick={() => handleNavClick("Dashboard")}
+                    className={`w-full text-left px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                      location.pathname === "/dashboard"
+                        ? "bg-white/10 text-white border border-white/10"
+                        : "text-neutral-300 hover:bg-white/5 hover:text-white"
+                    }`}
+                  >
+                    <LayoutDashboard className="w-4 h-4 text-blue-400" /> Dashboard
+                  </button>
+                </li>
+              )}
             </ul>
 
             <div className="h-px bg-white/10 my-3" />

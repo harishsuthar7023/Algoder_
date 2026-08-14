@@ -10,6 +10,7 @@ import CallToActionBanner from '../components/HomeSections/CallToActionBanner';
 import Footer from '../components/HomeSections/Footer';
 
 const Home = () => {
+
   useEffect(() => {
     API.get("/track-visit/")
       .then((res) => console.log("Visitor Tracked"))

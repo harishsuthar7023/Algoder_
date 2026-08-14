@@ -19,6 +19,9 @@ export default function CheckoutPage() {
     address: "",
     company_name: "",
   });
+  const MODE = import.meta.env.VITE_APP_MODE  
+
+  console.log(MODE)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,8 +41,11 @@ export default function CheckoutPage() {
   useEffect(() => {
     const loadCashfreeSDK = async () => {
       try {
-        cashfreeRef.current = await load({ mode: "production" });
-        // cashfreeRef.current = await load({ mode: "sandbox" });
+        if (MODE === "Test") {
+          cashfreeRef.current = await load({ mode: "sandbox" });
+        }else {
+          cashfreeRef.current = await load({ mode: "production" });
+        }
       } catch (error) {
         console.error("Cashfree SDK load failed:", error);
       }
@@ -84,12 +90,17 @@ export default function CheckoutPage() {
       const res = await API.post("/create-order/", payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (MODE === "Test") {
+          const urrl = `https://algoder-nmqo.onrender.com/#/ordercheck`;
+      }else {
+          const urrl = `http://localhost:5173/#/ordercheck`;
+        }
 
       if (res.data.payment_session_id) {
         await cashfreeRef.current.checkout({
           paymentSessionId: res.data.payment_session_id,
-          returnUrl: `http://algoder.onrender.com/#/ordercheck`,
-          // returnUrl: `http://localhost:5173/#/ordercheck`,
+          returnUrl: urrl,
+          // returnUrl: ,
         });
       } else {
         alert("Payment session ID not received.");

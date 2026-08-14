@@ -7,21 +7,23 @@ import {
   PackagePlus,
   GraduationCap,
   Eye,
-  ShoppingBag,
+  Home,
   Menu,
   X,
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
+  FileEdit 
 } from "lucide-react";
 
 const navItems = [
+  { label: "Home", path: "/", icon: Home },
   { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { label: "Add Product", path: "/productadmin", icon: PackagePlus },
   { label: "Manage Products", path: "/adminproducts", icon: Package },
   { label: "Manage Courses", path: "/courseadmin", icon: GraduationCap },
-  { label: "View Products", path: "/products", icon: Eye },
-  { label: "View Courses", path: "/courses", icon: ShoppingBag },
+  // { label: "View Products", path: "/products", icon: Eye },
+  { label: "Site Content", path: "/sitecontent", icon: FileEdit },
 ];
 
 const COLLAPSE_KEY = "admin_sidebar_collapsed";

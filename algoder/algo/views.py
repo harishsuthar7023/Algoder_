@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 app_id = settings.CASHFREE_APP_ID
 secret_key = settings.CASHFREE_SECRET_KEY
+mode = settings.MODE
 
 acckey = settings.FIREBASE_KEY_DICT
 firebase_url = settings.FIREBASE_URL
@@ -226,9 +227,10 @@ def create_cashfree_order(request):
         "x-client-secret": secret_key,
         "Accept": "application/json"
     }
-
-    # response = requests.post("https://sandbox.cashfree.com/pg/orders", json=payload, headers=headers)
-    response = requests.post("https://api.cashfree.com/pg/orders", json=payload, headers=headers)
+    if mode == "Test":
+        response = requests.post("https://sandbox.cashfree.com/pg/orders", json=payload, headers=headers)
+    else:
+        response = requests.post("https://api.cashfree.com/pg/orders", json=payload, headers=headers)
     data = response.json()
     # logger.info(response)
 
@@ -301,9 +303,10 @@ def verify_order_status(request):
 
 
             expected_amount = float(data.get("amount"))
-
-            url = "https://api.cashfree.com/api/v1/order/info/status" # For production
-            # url = "https://test.cashfree.com/api/v1/order/info/status" # For sandbox/testing
+            if mode == "Test":
+                url = "https://test.cashfree.com/api/v1/order/info/status" # For sandbox/testing
+            else:
+                url = "https://api.cashfree.com/api/v1/order/info/status" # For production
             payload = {
                 "appId": app_id,
                 "secretKey": secret_key,
@@ -626,3 +629,6 @@ class SiteContentAdminViewSet(viewsets.ModelViewSet):
         if not request.user.is_superuser:
             return Response({"error": "Unauthorized"}, status=403)
         return super().list(request, *args, **kwargs)
+
+
+

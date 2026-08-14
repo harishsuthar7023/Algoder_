@@ -26,7 +26,7 @@ const CoursePlayer = lazy(() => import('./pages/Mycourse'));
 // const EditProductForm = lazy(() => import('./pages/EditProductForm')); // Uncomment if needed
 const CourseContentManager = lazy(() => import('./pages/admin/CourseContentManager'));
 const SiteContentAdmin = lazy(() => import('./pages/admin/SiteContentAdmin'));
-
+// const Users = lazy(() => import("./pages/admin/Users"));
 
 function AppLoader() {
   return (
@@ -85,6 +85,7 @@ function App() {
 
         <Route path="/sitecontent" element={<SiteContentAdmin />} />
         {/* Optional Route */}
+        {/* <Route path="/admin/users" element={<Users />} /> */}
         {/* <Route path="/product/:id/edit" element={<EditProductForm />} /> */}
 
         {/* Catch-all — must stay last */}
