@@ -1,4 +1,3 @@
-// src/components/WhyChooseUs.jsx
 import React from "react";
 import * as Icons from "lucide-react";
 import { useSiteContent } from "../../hooks/useSiteContent";
@@ -10,8 +9,16 @@ export default function WhyChooseUs() {
 
   if (loading) {
     return (
-      <section className="relative bg-neutral-900 text-white py-16 md:py-20 px-4 overflow-hidden text-center text-sm text-neutral-400">
+      <section className="min-h-[40vh] flex items-center justify-center bg-neutral-900 text-neutral-400 text-sm">
         Loading...
+      </section>
+    );
+  }
+
+  if (!whyChooseUsContent.heading) {
+    return (
+      <section className="min-h-[40vh] flex items-center justify-center bg-neutral-900 text-neutral-400 text-sm">
+        Content not available.
       </section>
     );
   }
@@ -50,15 +57,11 @@ export default function WhyChooseUs() {
               <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
               <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-400/10 ring-1 ring-blue-400/20 mb-5 transition-colors duration-300 group-hover:ring-blue-400/40">
-                <IconComponent className={`w-6 h-6 ${feature.color}`} />
+                <IconComponent className={`w-6 h-6 ${feature.color || "text-blue-400"}`} />
               </div>
 
-              <h3 className="text-lg font-semibold mb-2 text-white">
-                {feature.title}
-              </h3>
-              <p className="text-neutral-400 text-sm leading-relaxed">
-                {feature.description}
-              </p>
+              <h3 className="text-lg font-semibold mb-2 text-white">{feature.title}</h3>
+              <p className="text-neutral-400 text-sm leading-relaxed">{feature.description}</p>
 
               {/* subtle bottom glow on hover */}
               <div className="pointer-events-none absolute -bottom-8 left-1/2 -translate-x-1/2 w-40 h-16 bg-blue-400/0 group-hover:bg-blue-400/10 blur-2xl rounded-full transition-all duration-500" />

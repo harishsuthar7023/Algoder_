@@ -13,7 +13,9 @@ import {
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
-  FileEdit 
+  FileEdit,
+  ShoppingCart,
+  Users, 
 } from "lucide-react";
 
 const navItems = [
@@ -22,7 +24,8 @@ const navItems = [
   { label: "Add Product", path: "/productadmin", icon: PackagePlus },
   { label: "Manage Products", path: "/adminproducts", icon: Package },
   { label: "Manage Courses", path: "/courseadmin", icon: GraduationCap },
-  // { label: "View Products", path: "/products", icon: Eye },
+  { label: "Manage Orders", path: "/adminorders", icon: ShoppingCart },   // 👈 naya
+  { label: "Manage Users", path: "/adminusers", icon: Users },  
   { label: "Site Content", path: "/sitecontent", icon: FileEdit },
 ];
 
@@ -197,8 +200,15 @@ const Sidebar = () => {
       </AnimatePresence>
 
       {/* ---------------- Desktop rail (collapsible) ---------------- */}
+      <div
+        aria-hidden="true"
+        className={`hidden md:block shrink-0 transition-[width] duration-300 ${
+          collapsed ? "md:w-[76px]" : "md:w-64"
+        }`}
+      />
+
       <aside
-        className={`hidden md:flex md:flex-col md:shrink-0 md:h-screen md:sticky md:top-0 bg-neutral-900 border-r border-white/10 p-3 transition-[width] duration-300 ${
+        className={`hidden md:flex md:flex-col md:fixed md:inset-y-0 md:left-0 md:z-30 bg-neutral-900 border-r border-white/10 p-3 transition-[width] duration-300 ${
           collapsed ? "md:w-[76px]" : "md:w-64"
         }`}
       >
@@ -228,7 +238,7 @@ const Sidebar = () => {
           </button>
         </div>
 
-        <nav className="flex-1 space-y-1">
+        <nav className="flex-1 space-y-1 overflow-y-auto">
           {navItems.map((item) => (
             <RailLink key={item.path} {...item} />
           ))}

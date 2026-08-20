@@ -26,6 +26,9 @@ const CoursePlayer = lazy(() => import('./pages/Mycourse'));
 // const EditProductForm = lazy(() => import('./pages/EditProductForm')); // Uncomment if needed
 const CourseContentManager = lazy(() => import('./pages/admin/CourseContentManager'));
 const SiteContentAdmin = lazy(() => import('./pages/admin/SiteContentAdmin'));
+
+const ManageOrders = lazy(() => import("./pages/admin/ManageOrders"));
+const ManageUsers = lazy(() => import("./pages/admin/ManageUsers"));
 // const Users = lazy(() => import("./pages/admin/Users"));
 
 function AppLoader() {
@@ -84,6 +87,9 @@ function App() {
 
 
         <Route path="/sitecontent" element={<SiteContentAdmin />} />
+
+        <Route path="/adminorders" element={<ManageOrders />} />
+        <Route path="/adminusers" element={<ManageUsers />} />
         {/* Optional Route */}
         {/* <Route path="/admin/users" element={<Users />} /> */}
         {/* <Route path="/product/:id/edit" element={<EditProductForm />} /> */}

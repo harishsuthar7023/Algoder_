@@ -2,7 +2,6 @@
 
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField  # if using PostgreSQL
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
@@ -23,6 +22,7 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
     image_url = models.URLField()
@@ -30,6 +30,7 @@ class ProductImage(models.Model):
 
     class Meta:
         ordering = ['order']
+
 
 class ProductDetail(models.Model):
     """Bullet-point details — jitni chahiye utni add ho sakti hain"""
@@ -51,12 +52,12 @@ class ProductDescription(models.Model):
     class Meta:
         ordering = ['order']
 
+
 class Getfile(models.Model):
     name = models.CharField(max_length=500)
     file_url = models.URLField()   # 👈 FileField hataya, ab Cloudinary URL
 
     
-
 class Order(models.Model):
     ORDER_STATUS_CHOICES = (
         ('pending', 'Pending'),
@@ -75,15 +76,9 @@ class Order(models.Model):
     phone = models.CharField(max_length=15)
     address = models.TextField()
     company_name = models.CharField(max_length=100, blank=True, null=True)
-    status = models.CharField(max_length=10, choices=ORDER_STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=10, choices=ORDER_STATUS_CHOICES, default='pending',db_index=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-
-
-class SiteVisit(models.Model):
-    ip_address = models.GenericIPAddressField()
-    timestamp = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True,db_index=True)
 
 
 class Course(models.Model):

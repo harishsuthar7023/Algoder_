@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -16,6 +16,9 @@ from django.conf import settings
 from rest_framework.permissions import AllowAny
 from django.utils import timezone
 from rest_framework import generics
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.throttling import AnonRateThrottle
+from django.core.cache import cache
 from .serializers import CourseSerializer,CourseDetailSerializer,VideoSerializer,SiteContentSerializer,TopicSerializer,ProductSerializer,OrderSerializer
 import firebase_admin
 from firebase_admin import credentials, db
@@ -24,8 +27,8 @@ from datetime import datetime
 from datetime import timezone as tz 
 from dateutil import parser
 import logging
-
-from .models import Product, Order, Getfile, ProductImage, ProductDetail, ProductDescription,SiteContent,Topic, Video,SiteVisit,Course
+from django.db.models import Q, Count
+from .models import Product, Order, Getfile, ProductImage, ProductDetail, ProductDescription,SiteContent,Topic, Video,Course
 
 logger = logging.getLogger(__name__)
 
@@ -41,16 +44,26 @@ firebase_url = settings.FIREBASE_URL
 
 cred = credentials.Certificate(acckey)
 
-firebase_admin.initialize_app(cred, {
-    "databaseURL": firebase_url
-})
+try:
+    firebase_admin.get_app()
+except ValueError:
+    firebase_admin.initialize_app(cred, {
+        "databaseURL": firebase_url
+    })
 
 ref = db.reference("/") 
 
 # product = Getfile.objects.get(id=2)
 # print(product.file.url)
 
+
+class LoginRateThrottle(AnonRateThrottle):
+    scope = 'login'
+
+
 @api_view(['POST'])
+@permission_classes([AllowAny])
+@throttle_classes([LoginRateThrottle])
 def register_user(request):
     username = request.data.get('username')
     email = request.data.get('email')
@@ -74,6 +87,8 @@ def register_user(request):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
+@throttle_classes([LoginRateThrottle])
 def login_user(request):
     username = request.data.get('username')
     password = request.data.get('password')
@@ -105,8 +120,10 @@ class CreateProductView(APIView):
     # parser_classes hataye - ab JSON aa raha hai, multipart nahi
 
     def post(self, request):
+        if not request.user.is_superuser:
+            return Response({'error': 'Unauthorized'}, status=403)
         data = request.data
-
+        # print(data)
         product = Product.objects.create(
             name=data.get('name'),
             description=data.get('description', ''),
@@ -154,25 +171,35 @@ class ProductViewSet(viewsets.ModelViewSet):
     )
     serializer_class = ProductSerializer
 
+    def get_permissions(self):
+        if self.request.method in ['GET', 'HEAD', 'OPTIONS']:
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
+    def update(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response({"error": "Unauthorized"}, status=403)
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return Response({"error": "Unauthorized"}, status=403)
+        return super().destroy(request, *args, **kwargs)
+
 
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
 def delete_product(request, product_id):
+    if not request.user.is_superuser:
+        return Response({'error': 'Unauthorized'}, status=403)
     try:
         product = Product.objects.get(id=product_id)
         name = product.name
-
-        # Delete from Product
         product.delete()
-
-        # Delete from Getfile (with same name)
         Getfile.objects.filter(name=name).delete()
-
         return Response({'message': 'Product and associated file deleted.'}, status=status.HTTP_200_OK)
-
     except Product.DoesNotExist:
         return Response({'error': 'Product not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-
 
 
 @csrf_exempt
@@ -180,19 +207,15 @@ def delete_product(request, product_id):
 @permission_classes([IsAuthenticated])
 def create_cashfree_order(request):
     data = json.loads(request.body)
-    print(data)
     order_id = f"order_{uuid.uuid4().hex[:10]}"
     user = request.user
     # Save to DB
-    # print(data)
     file_instance = Getfile.objects.filter(name=data.get('product_name')).first()
-    # print(f"File instance retrieved: {file_instance}")
     if str(data.get('type')) == "course":
         typess = "course"
     else:
         typess = "product"
-    
-    # print(f"Creating order with ID: and data: {user}")
+
     order = Order.objects.create(
         user=user,
         file_url=file_instance.file_url if file_instance else None,
@@ -228,15 +251,13 @@ def create_cashfree_order(request):
         "Accept": "application/json"
     }
     if mode == "Test":
-        response = requests.post("https://sandbox.cashfree.com/pg/orders", json=payload, headers=headers)
+        response = requests.post("https://sandbox.cashfree.com/pg/orders", json=payload, headers=headers, timeout=10)
     else:
-        response = requests.post("https://api.cashfree.com/pg/orders", json=payload, headers=headers)
+        response = requests.post("https://api.cashfree.com/pg/orders", json=payload, headers=headers, timeout=10)
     data = response.json()
-    # logger.info(response)
 
     if response.status_code in [200, 201]:
         data = response.json()
-        # logger.info(data)
         return JsonResponse({
             "payment_session_id": data.get("payment_session_id"),
             "order_id": order_id
@@ -244,23 +265,6 @@ def create_cashfree_order(request):
 
     return JsonResponse({"error": response.json()}, status=400)
 
-
-# @api_view(['GET'])
-# def get_file_by_name(name):
-#     try:
-        
-#         print({
-#             'name': file_instance.name,
-#             'file_url': file_instance.file.url,
-#         })
-
-#         # return file_instance.file  # optional: return file if needed
-#     except Getfile.DoesNotExist:
-#         print(f"❌ File not found for name: {name}")
-#         return None
-        # return HttpResponseNotFound("File not found for this name.")
-
-# get_file_by_name("EXCEL TOOL")
 
 def add_order(product_name, order_id,name,email,phone, payment_status):
     expiry_date = dt.datetime.now() + dt.timedelta(days=300)
@@ -280,79 +284,62 @@ def add_order(product_name, order_id,name,email,phone, payment_status):
         }
     })
 
-@csrf_exempt
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def verify_order_status(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            order_id = data.get("order_id")
-            product_name = data.get("product_name")
-            total_order = data.get("total_order")
-            # print(f"total order {total_order}")
-            try:
-                now = datetime.now(tz.utc)
+    try:
+        data = request.data
+        order_id = data.get("order_id")
 
-                closest_order = min(
-                    total_order,
-                    key=lambda o: abs(parser.parse(o["created_at"]) - now)
-                )
+        # order sirf DB se, sirf usi user ka jo login hai — kisi aur ka order query/update nahi ho sakta
+        order = Order.objects.filter(order_id=order_id, user=request.user).first()
+        if not order:
+            return Response({"error": "Order not found"}, status=404)
 
-                # print(f"Closest order: {closest_order}")
-            except Exception as e:
-                logger.info(f"Error finding closest order: {e}")
+        if mode == "Test":
+            url = "https://test.cashfree.com/api/v1/order/info/status"  # For sandbox/testing
+        else:
+            url = "https://api.cashfree.com/api/v1/order/info/status"  # For production
+        payload = {
+            "appId": app_id,
+            "secretKey": secret_key,
+            "orderId": order_id
+        }
 
+        response = requests.post(url, data=payload, timeout=10)
+        response_json = response.json()
+        payment_status = response_json.get("orderStatus")
+        paid_amount = float(response_json.get("orderAmount") or 0)
 
-            expected_amount = float(data.get("amount"))
-            if mode == "Test":
-                url = "https://test.cashfree.com/api/v1/order/info/status" # For sandbox/testing
-            else:
-                url = "https://api.cashfree.com/api/v1/order/info/status" # For production
-            payload = {
-                "appId": app_id,
-                "secretKey": secret_key,
-                "orderId": order_id
-            }
+        # DB me saved amount se compare karo, client se aaya kuch bhi use nahi karna
+        expected_amount = float(order.amount)
 
-            response = requests.post(url, data=payload)
-            response_json = response.json()
-            # print(data)
-            payment_status = response_json.get("orderStatus")
-            paid_amount = float(response_json.get("orderAmount"))
+        if payment_status == "PAID" and paid_amount == expected_amount and order.status != "success":
+            order.status = "success"
+            order.save()
+            payment_kind = "FREE" if int(paid_amount) == 1 else "PAID"
+            add_order(order.product_name, order.order_id, order.name, order.email, order.phone, payment_kind)
 
-            # Debug info
-            # print(f"Response JSON: {response_json}")
+        return Response({
+            "order_id": order.order_id,
+            "status": order.status,
+            "payment_status": payment_status,
+            "paid_amount": paid_amount,
+        })
 
-            # Fetch order from DB
-            order = Order.objects.filter(order_id=order_id).first()
-            if not order:
-                return JsonResponse({"error": "Order not found"}, status=404)
-
-            # Update status if paid and amount matches
-            if payment_status == "PAID" and paid_amount == expected_amount:
-                order.status = "success"
-                order.save()
-                if int(paid_amount) == 1 and order_id == closest_order["order_id"]:
-                    add_order(product_name, order_id,closest_order['name'],closest_order['email'],closest_order['phone'],"FREE")
-                elif order_id == closest_order["order_id"]:
-                    add_order(product_name, order_id,closest_order['name'],closest_order['email'],closest_order['phone'],"PAID")
-
-            return JsonResponse({
-                "order_id": order_id,
-                "status": order.status,
-                "payment_status": payment_status,
-                "paid_amount": paid_amount,
-            })
-
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
+    except Exception as e:
+        logger.warning(f"verify_order_status error: {e}")
+        return Response({"error": "Could not verify order"}, status=500)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_orders(request):
     user = request.user
-    orders = Order.objects.filter(user=user).order_by('-created_at')
-    serializer = OrderSerializer(orders, many=True)
+    orders = Order.objects.filter(user=user).select_related('user').order_by('-created_at')
+    course_map = dict(Course.objects.values_list('title', 'id'))
+    serializer = OrderSerializer(orders, many=True, context={'course_map': course_map})
     return Response(serializer.data)
 
 
@@ -369,69 +356,65 @@ class UserProfileView(APIView):
         })
 
 
-def get_client_ip(request):
-    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
-    if x_forwarded_for:
-        return x_forwarded_for.split(",")[0]
-    return request.META.get("REMOTE_ADDR")
-
-@api_view(["GET"])
-@permission_classes([AllowAny])
-def track_visit(request):
-    ip = get_client_ip(request)
-    recent = SiteVisit.objects.filter(
-        ip_address=ip,
-        timestamp__gte=timezone.now() - timezone.timedelta(minutes=5)
-    )
-    if not recent.exists():
-        SiteVisit.objects.create(ip_address=ip)
-    return Response({"status": "Visitor Tracked"})
-
 @api_view(["GET"])
 def dashboard_stats(request):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return Response({"error": "Unauthorized"}, status=403)
 
     try:
-        total_views = SiteVisit.objects.count()
         total_users = User.objects.count()
 
-        success_orders = Order.objects.filter(status="success")
-        pending_orders = Order.objects.filter(status="pending")
+        # Sirf recent 25 orders bhejo, poori table nahi — dashboard summary hai, full list nahi.
+        # Poori list ke liye list_all_orders_admin (already paginated) use hota hai.
+        success_orders_qs = Order.objects.filter(status="success").select_related('user').order_by('-created_at')
+        pending_orders_qs = Order.objects.filter(status="pending").select_related('user').order_by('-created_at')
+
+        success_count = success_orders_qs.count()
+        pending_count = pending_orders_qs.count()
+
+        success_orders = success_orders_qs[:25]
+        pending_orders = pending_orders_qs[:25]
+
+        recent_users = User.objects.order_by('-date_joined')[:5]
 
         def serialize_order(order):
             return {
                 "order_id": order.order_id,
+                "product_name": order.product_name,
+                "types": order.types,
                 "name": order.name,
                 "email": order.email,
                 "phone": order.phone,
                 "address": order.address,
+                "company_name": order.company_name or "",
                 "file": order.file_url or "",
                 "amount": float(order.amount) if order.amount is not None else 0,
+                "status": order.status,
+                "created_at": order.created_at,
+                "buyer": {
+                    "id": order.user.id,
+                    "username": order.user.username,
+                    "account_email": order.user.email,
+                    "is_active": order.user.is_active,
+                    "date_joined": order.user.date_joined,
+                } if order.user else None,
             }
 
         return Response({
-            "viewer_count": total_views,
             "user_count": total_users,
-            "success_order_count": success_orders.count(),
+            "success_order_count": success_count,
+            "pending_order_count": pending_count,
             "success_orders": [serialize_order(o) for o in success_orders],
             "pending_orders": [serialize_order(o) for o in pending_orders],
+            "recent_users": [
+                {"id": u.id, "username": u.username, "email": u.email, "date_joined": u.date_joined}
+                for u in recent_users
+            ],
         })
 
     except Exception as e:
         logger.exception("dashboard_stats failed")
         return Response({"error": str(e)}, status=500)
-
-
-
-
-
-
-
-
-
-
-
 
 
 class CourseListAPIView(generics.ListAPIView):
@@ -470,10 +453,6 @@ class CourseContentAPIView(APIView):
 
         serializer = CourseDetailSerializer(course)
         return Response({"success": True, "data": serializer.data})
-
-
-
-
 
 
 class CourseAdminViewSet(viewsets.ModelViewSet):
@@ -595,12 +574,13 @@ class VideoUpdateDeleteView(APIView):
 class SiteContentPublicView(APIView):
     """Sabhi sections ek saath - homepage/pages load karne ke liye, koi login nahi chahiye"""
     permission_classes = [AllowAny]
-    # print("yes heree..........................")
+
     def get(self, request):
-        # print("GET /site-content/ called")
-        contents = SiteContent.objects.all()
-        # print(contents)
-        data = {c.section: c.data for c in contents}
+        data = cache.get('site_content_public')
+        if data is None:
+            contents = SiteContent.objects.all()
+            data = {c.section: c.data for c in contents}
+            cache.set('site_content_public', data, 300)  # 5 min cache
         return Response(data)
 
 
@@ -613,17 +593,23 @@ class SiteContentAdminViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             return Response({"error": "Unauthorized"}, status=403)
-        return super().create(request, *args, **kwargs)
+        response = super().create(request, *args, **kwargs)
+        cache.delete('site_content_public')
+        return response
 
     def update(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             return Response({"error": "Unauthorized"}, status=403)
-        return super().update(request, *args, **kwargs)
+        response = super().update(request, *args, **kwargs)
+        cache.delete('site_content_public')
+        return response
 
     def destroy(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             return Response({"error": "Unauthorized"}, status=403)
-        return super().destroy(request, *args, **kwargs)
+        response = super().destroy(request, *args, **kwargs)
+        cache.delete('site_content_public')
+        return response
 
     def list(self, request, *args, **kwargs):
         if not request.user.is_superuser:
@@ -631,4 +617,155 @@ class SiteContentAdminViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_users(request):
+    if not request.user.is_superuser:
+        return Response({"error": "Unauthorized"}, status=403)
 
+    search = request.GET.get('search', '').strip()
+    sort_by = request.GET.get('sort_by', 'date')
+    sort_order = request.GET.get('sort_order', 'desc')
+
+    users = User.objects.annotate(order_count=Count('orders'))
+    if search:
+        users = users.filter(Q(username__icontains=search) | Q(email__icontains=search))
+
+    sort_field_map = {'date': 'date_joined', 'name': 'username'}
+    field = sort_field_map.get(sort_by, 'date_joined')
+    if sort_order == 'desc':
+        field = f'-{field}'
+    users = users.order_by(field)
+
+    paginator = PageNumberPagination()
+    paginator.page_size = 20
+    page = paginator.paginate_queryset(users, request)
+
+    data = [{
+        "id": u.id,
+        "username": u.username,
+        "email": u.email,
+        "is_superuser": u.is_superuser,
+        "is_active": u.is_active,
+        "date_joined": u.date_joined,
+        "last_login": u.last_login,
+        "order_count": u.order_count,   # 👈 ab ek hi query me aa gaya, N+1 nahi
+    } for u in page]
+    return paginator.get_paginated_response(data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_user_admin(request):
+    if not request.user.is_superuser:
+        return Response({"error": "Unauthorized"}, status=403)
+
+    username = request.data.get('username')
+    email = request.data.get('email')
+    password = request.data.get('password')
+    make_superuser = request.data.get('is_superuser', False)
+
+    if not username or not password:
+        return Response({"error": "Username and password required"}, status=400)
+    if User.objects.filter(username=username).exists():
+        return Response({"error": "Username already exists"}, status=400)
+
+    user = User.objects.create_user(username=username, email=email, password=password)
+    if make_superuser:
+        user.is_superuser = True
+        user.is_staff = True
+        user.save()
+
+    return Response({"message": "User created", "id": user.id}, status=201)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def toggle_superuser(request, user_id):
+    if not request.user.is_superuser:
+        return Response({"error": "Unauthorized"}, status=403)
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=404)
+
+    if user.id == request.user.id:
+        return Response({"error": "Aap khud ka superuser status change nahi kar sakte"}, status=400)
+
+    user.is_superuser = not user.is_superuser
+    user.is_staff = user.is_superuser
+    user.save()
+    return Response({"id": user.id, "is_superuser": user.is_superuser})
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_user(request, user_id):
+    if not request.user.is_superuser:
+        return Response({"error": "Unauthorized"}, status=403)
+    if user_id == request.user.id:
+        return Response({"error": "Aap khud ko delete nahi kar sakte"}, status=400)
+    deleted, _ = User.objects.filter(id=user_id).delete()
+    if deleted:
+        return Response({"message": "User deleted"})
+    return Response({"error": "User not found"}, status=404)
+
+
+# ---------- ORDER MANAGEMENT (search + delete) ----------
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_all_orders_admin(request):
+    if not request.user.is_superuser:
+        return Response({"error": "Unauthorized"}, status=403)
+
+    search = request.GET.get('search', '').strip()
+    status_filter = request.GET.get('status', '').strip()
+    sort_by = request.GET.get('sort_by', 'date')       # 'date' | 'name'
+    sort_order = request.GET.get('sort_order', 'desc')  # 'asc' | 'desc'
+
+    orders = Order.objects.select_related('user').all()
+    if search:
+        orders = orders.filter(
+            Q(order_id__icontains=search) | Q(email__icontains=search) |
+            Q(name__icontains=search) | Q(product_name__icontains=search) |
+            Q(phone__icontains=search)
+        )
+    if status_filter:
+        orders = orders.filter(status=status_filter)
+
+    sort_field_map = {'date': 'created_at', 'name': 'name'}
+    field = sort_field_map.get(sort_by, 'created_at')
+    if sort_order == 'desc':
+        field = f'-{field}'
+    orders = orders.order_by(field)
+
+    paginator = PageNumberPagination()
+    paginator.page_size = 20
+    page = paginator.paginate_queryset(orders, request)
+
+    course_map = dict(Course.objects.values_list('title', 'id'))
+    serializer = OrderSerializer(page, many=True, context={'course_map': course_map})
+    return paginator.get_paginated_response(serializer.data)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_order(request, order_id):
+    if not request.user.is_superuser:
+        return Response({"error": "Unauthorized"}, status=403)
+    deleted, _ = Order.objects.filter(order_id=order_id).delete()
+    if deleted:
+        return Response({"message": "Order deleted"})
+    return Response({"error": "Order not found"}, status=404)
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_orders(request, user_id):
+    if not request.user.is_superuser:
+        return Response({"error": "Unauthorized"}, status=403)
+    orders = Order.objects.filter(user_id=user_id).select_related('user').order_by('-created_at')
+    course_map = dict(Course.objects.values_list('title', 'id'))
+    serializer = OrderSerializer(orders, many=True, context={'course_map': course_map})
+    return Response(serializer.data)

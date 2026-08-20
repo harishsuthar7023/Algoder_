@@ -328,14 +328,30 @@ function ProductDetail() {
         {product.details?.length > 0 && (
           <div className="relative max-w-7xl mx-auto mt-8 animate-element fade-in-up">
             <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 p-6 sm:p-8 rounded-2xl">
-              <h2 className="text-xl sm:text-2xl font-bold text-white mb-6">Product details</h2>
+
+              <h2 className="text-xl sm:text-2xl font-bold text-white mb-6">
+                Product details
+              </h2>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
-                {product.details.map((item, i) => (
+
+                {product.details.flatMap((item) =>
+                  item.text
+                    .split(/\/n|\\n|\n/)
+                    .map((text) => text.trim())
+                    .filter(Boolean)
+                ).map((text, i) => (
                   <div className="flex items-center gap-3" key={i}>
+
                     <div className="shrink-0 w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-400 to-cyan-300" />
-                    <span className="text-neutral-300 text-sm sm:text-base">{item.text}</span>
+
+                    <span className="text-neutral-300 text-sm sm:text-base">
+                      {text}
+                    </span>
+
                   </div>
                 ))}
+
               </div>
             </div>
           </div>

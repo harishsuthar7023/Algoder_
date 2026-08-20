@@ -1,43 +1,29 @@
 import React from "react";
 import { ArrowRight, MessageCircle } from "lucide-react";
-// import callToActionContent from "../../content/callToActionContent";
 import { useSiteContent } from "../../hooks/useSiteContent";
-
 
 const CallToActionBanner = () => {
   const { content, loading } = useSiteContent();
-  const callToActionContent = content.cta_banner || {};
-  // console.log(callToActionContent)
-  const title = callToActionContent.title
-  const  description = callToActionContent.description
-  const  buttonLabel = callToActionContent.buttonLabel
-  const  phoneNumber = callToActionContent.phoneNumber
-  const  preFilledMessage = callToActionContent.preFilledMessage
+  const ctaContent = content.cta_banner || {};
 
   if (loading) {
     return (
-      <>
-        {/* <Navbar /> */}
-        <div className="min-h-screen flex items-center justify-center bg-neutral-900 text-white">
-          Loading...
-        </div>
-      </>
+      <div className="min-h-[30vh] flex items-center justify-center bg-neutral-900 text-neutral-400 text-sm">
+        Loading...
+      </div>
     );
   }
 
-  if (!callToActionContent.title) {
+  if (!ctaContent.title) {
     return (
-      <>
-        {/* <Navbar /> */}
-        <div className="min-h-screen flex items-center justify-center bg-neutral-900 text-white">
-          Content not available.
-        </div>
-      </>
+      <div className="min-h-[30vh] flex items-center justify-center bg-neutral-900 text-neutral-400 text-sm">
+        Content not available.
+      </div>
     );
   }
 
-
-  const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(preFilledMessage)}`;
+  const { title, description, buttonLabel, phoneNumber, preFilledMessage } = ctaContent;
+  const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(preFilledMessage || "")}`;
 
   return (
     <div className="bg-neutral-900 px-4 py-6">
@@ -51,9 +37,7 @@ const CallToActionBanner = () => {
             <h2 className="text-2xl md:text-4xl font-black text-white mb-3 tracking-tight">
               {title}
             </h2>
-            <p className="text-neutral-400 text-sm md:text-base max-w-xl">
-              {description}
-            </p>
+            <p className="text-neutral-400 text-sm md:text-base max-w-xl">{description}</p>
           </div>
 
           <a

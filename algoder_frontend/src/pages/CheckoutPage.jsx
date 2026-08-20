@@ -21,7 +21,7 @@ export default function CheckoutPage() {
   });
   const MODE = import.meta.env.VITE_APP_MODE  
 
-  console.log(MODE)
+  // console.log(MODE)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -90,18 +90,18 @@ export default function CheckoutPage() {
       const res = await API.post("/create-order/", payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (MODE === "Test") {
-        const urrl = `http://localhost:5173/#/ordercheck`;
-      }else {
-        const urrl = `https://algoder-nmqo.onrender.com/#/ordercheck`;
-        }
-
+      
       if (res.data.payment_session_id) {
+        const returnUrl =
+          MODE === "Test"
+            ? `http://localhost:5173/#/ordercheck`
+            : `https://algoder-nmqo.onrender.com/#/ordercheck`;
+
         await cashfreeRef.current.checkout({
           paymentSessionId: res.data.payment_session_id,
-          returnUrl: urrl,
-          // returnUrl: ,
+          returnUrl,
         });
+        
       } else {
         alert("Payment session ID not received.");
       }

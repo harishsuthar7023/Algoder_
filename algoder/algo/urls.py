@@ -1,12 +1,13 @@
-from .views import register_user, login_user ,protected_view,create_cashfree_order, list_orders, verify_order_status,CreateProductView,UserProfileView,delete_product,dashboard_stats,track_visit
+from .views import register_user, login_user ,protected_view,create_cashfree_order, list_orders, verify_order_status,CreateProductView,UserProfileView,delete_product,dashboard_stats,list_users, create_user_admin, toggle_superuser, delete_user,list_all_orders_admin, delete_order
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import ProductViewSet
 from .views import CourseDetailView,CourseContentAPIView,CourseListAPIView
 from .views import (
     CourseAdminViewSet, TopicCreateView, TopicUpdateDeleteView,
-    VideoCreateView, VideoUpdateDeleteView, SiteContentAdminViewSet,SiteContentPublicView
+    VideoCreateView, VideoUpdateDeleteView, SiteContentAdminViewSet,SiteContentPublicView,user_orders
 )
+
 # from .views import receive_trade_data
 # from .views import delete_trade_symbol,place_order,trigger_start_algo,trigger_stop_algo
 # from authapp.algo.main import trigger_algo
@@ -30,10 +31,6 @@ urlpatterns = [
     path('user-profile/', UserProfileView.as_view(), name='user-profile'),
     path('products/<int:product_id>/delete/', delete_product, name='delete_product'),
     path('dashboard-stats/', dashboard_stats, name='dashboard-stats'),
-    path('track-visit/', track_visit, name='track-visit'),
-    # path('course-data/', CourseDataAPIView.as_view(), name='course-data'),
-    # path('upload-video/', UploadVideoAPIView.as_view(), name='upload-video'),
-
     path('courses/', CourseListAPIView.as_view(), name='course-list'),
     path('course/<int:pk>/', CourseDetailView.as_view(), name='course-detail'),
     path('course/<int:course_id>/content/', CourseContentAPIView.as_view(), name='course-content'),
@@ -43,6 +40,16 @@ urlpatterns = [
     path('videos/<int:video_id>/', VideoUpdateDeleteView.as_view()),
 
     path('site-content/', SiteContentPublicView.as_view(), name='site-content-public'),
+
+
+    path('admin/users/', list_users, name='list-users'),
+    path('admin/users/create/', create_user_admin, name='create-user-admin'),
+    path('admin/users/<int:user_id>/toggle-superuser/', toggle_superuser, name='toggle-superuser'),
+    path('admin/users/<int:user_id>/delete/', delete_user, name='delete-user'),
+
+    path('admin/orders/', list_all_orders_admin, name='list-all-orders'),
+    path('admin/orders/<str:order_id>/delete/', delete_order, name='delete-order'),
+    path('admin/users/<int:user_id>/orders/', user_orders, name='user-orders'),
      # Optional route to test token
     # path('symbols/', symbol_list),
 ]

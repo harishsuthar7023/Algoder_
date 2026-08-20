@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
       // case "Mycourse": return "/mycourse";
       // case "Courses": return "/courses";
-const navLinks = ["Home", "Products", "Orders", "About", "Contact","Courses"];
+const navLinks = ["Home", "Products", "Orders", "About", "Contact"];
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);

@@ -30,11 +30,13 @@ class ProductSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     file = serializers.SerializerMethodField()
     course_id = serializers.SerializerMethodField()
+    buyer = serializers.SerializerMethodField()   # 👈 naya — linked User account ki info
 
     class Meta:
         model = Order
-        fields = ['order_id','video_url', 'product_name', 'name', 'types', 'email', 'phone',
-                  'address', 'company_name', 'status', 'amount', 'created_at', 'file', 'course_id']
+        fields = ['order_id', 'video_url', 'product_name', 'name', 'types', 'email', 'phone',
+                  'address', 'company_name', 'status', 'amount', 'created_at', 'file',
+                  'course_id', 'buyer']
 
     def get_file(self, obj):
         if obj.status == 'success' and obj.file_url:
@@ -43,9 +45,25 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_course_id(self, obj):
         if obj.types == 'course':
+            course_map = self.context.get('course_map')
+            if course_map is not None:
+                return course_map.get(obj.product_name)
             course = Course.objects.filter(title=obj.product_name).first()
             return course.id if course else None
         return None
+
+    def get_buyer(self, obj):
+        if not obj.user:
+            return None
+        return {
+            "id": obj.user.id,
+            "username": obj.user.username,
+            "account_email": obj.user.email,
+            "is_active": obj.user.is_active,
+            "is_superuser": obj.user.is_superuser,
+            "date_joined": obj.user.date_joined,
+            "last_login": obj.user.last_login,
+        }
 
     
 
@@ -83,11 +101,9 @@ class CourseDetailSerializer(serializers.ModelSerializer):
 
 
 class CourseSerializer(serializers.ModelSerializer):
-    topics = TopicSerializer(many=True, read_only=True)
-
     class Meta:
         model = Course
-        fields = '__all__'
+        fields = '__all__' 
 
 class SiteContentSerializer(serializers.ModelSerializer):
     class Meta:

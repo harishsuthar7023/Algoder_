@@ -73,6 +73,25 @@ const MyOrders = () => {
       year: "numeric",
     });
 
+    const getYoutubeEmbedUrl = (url) => {
+    try {
+      const urlObj = new URL(url);
+
+      if (urlObj.hostname.includes("youtube.com")) {
+        const videoId = urlObj.searchParams.get("v");
+        return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+      }
+
+      if (urlObj.hostname === "youtu.be") {
+        const videoId = urlObj.pathname.slice(1);
+        return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+      }
+
+      return url;
+    } catch {
+      return url;
+    }
+  };
 
   
 
@@ -277,16 +296,15 @@ const MyOrders = () => {
             >
               <X className="w-4 h-4" />
             </button>
+
             <div className="aspect-video bg-black">
-              <video
-                src={activeVideoUrl}
-                controls
-                controlsList="nodownload"
-                autoPlay
+              <iframe
+                src={getYoutubeEmbedUrl(activeVideoUrl)}
+                title="YouTube video"
                 className="w-full h-full"
-              >
-                Your browser does not support the video tag.
-              </video>
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
             </div>
           </div>
         </div>
