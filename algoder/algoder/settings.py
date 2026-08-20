@@ -30,7 +30,7 @@ if MODE == "Test":
     ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
 else:
     DEBUG = False
-    ALLOWED_HOSTS = ["api.algoder.in", "algoder.onrender.com"]
+    ALLOWED_HOSTS = ["api.algoder.in", "algoder-hmuu.onrender.com"]
 
 
 # Application definition
