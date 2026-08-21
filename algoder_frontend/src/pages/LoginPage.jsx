@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, LogIn, AlertCircle } from 'lucide-react';
 import API from '../utils/api';
 import Navbar from '../components/NavBar';
+import GlowOrb from "../components/Effects/Gloworb";
 
 const Login = () => {
   const [form, setForm] = useState({ username: '', password: '' });
@@ -44,8 +45,8 @@ const Login = () => {
       <Navbar />
       <div className="relative min-h-screen bg-neutral-900 flex items-center justify-center px-5 py-28 overflow-hidden">
         {/* Ambient glow orbs */}
-        <div className="pointer-events-none absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/[0.08] rounded-full blur-[120px]" />
-        <div className="pointer-events-none absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-400/[0.07] rounded-full blur-[120px]" />
+        <GlowOrb color="59,130,246" opacity={0.07} size={884} className="top-1/4 left-1/40" />
+        <GlowOrb color="34,211,238" opacity={0.07} size={884} className="top-1/40 left-1/2" />
 
         <div className="relative w-full max-w-md">
           <div className="bg-white/[0.03] border border-white/10 backdrop-blur-xl rounded-2xl p-8 sm:p-10 overflow-hidden">

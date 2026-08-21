@@ -4,6 +4,7 @@ import { ShieldCheck, HeadphonesIcon, RotateCcw, Clock, BarChart3, Globe } from 
 import API from "../../utils/api";
 import Navbar from "../../components/NavBar";
 import Footer from "../../components/HomeSections/Footer";
+import GlowOrb from "../../components/Effects/Gloworb";
 
 export default function CourseDetail() {
   const { id } = useParams();
@@ -71,8 +72,8 @@ export default function CourseDetail() {
       <>
         <Navbar />
         <div className="relative bg-neutral-900 min-h-screen pt-24 px-4 sm:px-8 pb-24 overflow-hidden">
-          <div className="pointer-events-none absolute top-24 left-1/4 w-96 h-96 bg-blue-500/[0.07] rounded-full blur-[120px]" />
-          <div className="pointer-events-none absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-400/[0.06] rounded-full blur-[120px]" />
+          <GlowOrb color="59,130,246" opacity={0.07} size={884} className="top-1/4 left-1/40" />
+          <GlowOrb color="34,211,238" opacity={0.07} size={884} className="top-1/40 left-1/2" />
           <div className="relative max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 animate-pulse">
             <div className="aspect-video rounded-2xl bg-white/[0.04] border border-white/10" />
             <div className="space-y-4">
@@ -97,8 +98,8 @@ export default function CourseDetail() {
     <>
       <Navbar />
       <div className="relative bg-neutral-900 text-neutral-200 min-h-screen pt-24 px-4 sm:px-6 md:px-12 pb-24 overflow-hidden">
-        <div className="pointer-events-none absolute top-24 left-1/4 w-96 h-96 bg-blue-500/[0.07] rounded-full blur-[120px]" />
-        <div className="pointer-events-none absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-400/[0.06] rounded-full blur-[120px]" />
+        <GlowOrb color="59,130,246" opacity={0.07} size={884} className="top-1/4 left-1/40" />
+        <GlowOrb color="34,211,238" opacity={0.07} size={884} className="top-1/40 left-1/2" />
 
         <div className="relative max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 items-start">
           {/* LEFT: Video */}

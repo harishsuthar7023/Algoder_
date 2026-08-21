@@ -1,13 +1,13 @@
 // src/components/TrustIndicators.jsx
 import React from "react";
 import trustFeatures, { trustHeader } from "../../content/trustFeatures";
-
+import GlowOrb from "../Effects/Gloworb";
 const TrustIndicators = () => {
   return (
     <div className="relative bg-neutral-900 py-5 md:py-5 px-4 text-white overflow-hidden">
       {/* Ambient glow orbs */}
-      <div className="pointer-events-none absolute top-0 left-1/3 w-96 h-96 bg-blue-500/[0.07] rounded-full blur-[120px]" />
-      <div className="pointer-events-none absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-400/[0.06] rounded-full blur-[120px]" />
+      <GlowOrb color="59,130,246" opacity={0.07} size={884} className="top-1/4 left-1/40" />
+      <GlowOrb color="34,211,238" opacity={0.07} size={884} className="top-1/40 left-1/2" />
 
       {/* Header */}
       <div className="relative max-w-7xl mx-auto mb-10 md:mb-12 px-2 sm:px-4">

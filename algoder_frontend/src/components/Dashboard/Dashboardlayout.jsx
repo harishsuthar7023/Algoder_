@@ -1,6 +1,6 @@
 import React from "react";
 import Sidebar from "./Sidebar";
-
+import GlowOrb from "../Effects/Gloworb";
 /**
  * Wrap every dashboard page in this so the nav, background, and content
  * gutters are always identical — no page should build its own shell.
@@ -13,8 +13,8 @@ const DashboardLayout = ({ title, subtitle, actions, children, wide = true }) =>
   return (
     <div className="md:flex min-h-screen bg-neutral-900 relative overflow-hidden">
       {/* Ambient glow orbs — same as rest of the site */}
-      <div className="pointer-events-none absolute top-0 right-1/4 w-96 h-96 bg-blue-500/[0.06] rounded-full blur-[120px]" />
-      <div className="pointer-events-none absolute bottom-0 left-1/4 w-96 h-96 bg-cyan-400/[0.05] rounded-full blur-[120px]" />
+      <GlowOrb color="59,130,246" opacity={0.07} size={884} className="top-1/4 left-1/40" />
+      <GlowOrb color="34,211,238" opacity={0.07} size={884} className="top-1/40 left-1/2" />
 
       <Sidebar />
       <main className="relative flex-1 min-w-0">

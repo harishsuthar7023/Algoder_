@@ -1,6 +1,7 @@
 import React from "react";
 import { ArrowRight, MessageCircle } from "lucide-react";
-import { useSiteContent } from "../../hooks/useSiteContent";
+import { useSiteContent } from "../../hooks/SiteContentContext";
+import GlowOrb from "../Effects/GlowOrb";
 
 const CallToActionBanner = () => {
   const { content, loading } = useSiteContent();
@@ -29,8 +30,8 @@ const CallToActionBanner = () => {
     <div className="bg-neutral-900 px-4 py-6">
       <div className="relative max-w-7xl mx-auto overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.04] to-white/[0.01] backdrop-blur-sm">
         {/* Glow accent */}
-        <div className="absolute -top-24 -right-24 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-cyan-400/10 rounded-full blur-3xl pointer-events-none" />
+        <GlowOrb color="59,130,246" opacity={0.07} size={584} className="top-1/4 left-1/2" />
+        <GlowOrb color="59,130,246" opacity={0.07} size={884} className="top-1/15 left-1/40" />
 
         <div className="relative flex flex-col md:flex-row items-center justify-between gap-6 px-8 py-12 md:px-14">
           <div className="text-center md:text-left">

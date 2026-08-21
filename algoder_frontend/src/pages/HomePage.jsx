@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import API from "../utils/api";
-import { useSiteContent } from "../hooks/useSiteContent";
+// import { useSiteContent } from "../hooks/useSiteContent";
 import Navbar from "../components/NavBar";
 import HeroSection from "../components/HomeSections/HeroSection";
 import ProductBanner from "../components/HomeProduct";
@@ -11,17 +11,16 @@ import CallToActionBanner from "../components/HomeSections/CallToActionBanner";
 import Footer from "../components/HomeSections/Footer";
 import SiteUnavailable from "../components/SiteUnavailable";
 
+
+import { useSiteContent } from "../hooks/SiteContentContext";
+
 const Home = () => {
-  // useEffect(() => {
-  //   API.get("/track-visit/")
-  //     .then(() => console.log("Visitor Tracked"))
-  //     .catch((err) => console.error("Visitor tracking failed", err));
-  // }, []);
-
   const { content, loading, error } = useSiteContent();
-
-  // Agar site-content API fail ho gaya, ya poori tarah khaali aaya
-  const isEmpty = !loading && !error && Object.keys(content).length === 0;
+  // console.log(content);
+  const isEmpty =
+    !loading &&
+    !error &&
+    Object.keys(content).length === 0;
 
   if (!loading && (error || isEmpty)) {
     return <SiteUnavailable />;

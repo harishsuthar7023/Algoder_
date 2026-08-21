@@ -4,7 +4,7 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus, 
 input:-webkit-autofill:active {
-  box-shadow: 0 0 0px 1000px #404040 inset !important;
+  box-shadow: 0 0 0px 1000px hwb(0 25% 75%) inset !important;
   -webkit-text-fill-color: white !important;
   caret-color: white !important;
   border: 1px solid #4b5563; /* optional: for border */

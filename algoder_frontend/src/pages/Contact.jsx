@@ -3,7 +3,7 @@ import Navbar from "../components/NavBar";
 import Footer from "../components/HomeSections/Footer";
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from "react-icons/fa";
 import { Phone, Mail, MapPin, ChevronDown, CheckCircle2, AlertCircle } from "lucide-react";
-
+import GlowOrb from "../components/Effects/Gloworb";
 const faqs = [
   {
     q: "How do I get started with trading?",
@@ -87,8 +87,8 @@ const ContactPage = () => {
 
       {/* Header */}
       <header className="relative bg-neutral-900 pt-32 pb-16 md:pt-40 md:pb-20 px-4 overflow-hidden">
-        <div className="pointer-events-none absolute top-0 left-1/3 w-96 h-96 bg-blue-500/[0.08] rounded-full blur-[120px]" />
-        <div className="pointer-events-none absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-400/[0.07] rounded-full blur-[120px]" />
+        <GlowOrb color="59,130,246" opacity={0.07} size={884} className="top-1/4 left-1/40" />
+        <GlowOrb color="34,211,238" opacity={0.07} size={884} className="top-1/40 left-1/2" />
 
         <div className="relative max-w-4xl mx-auto text-center">
           <span className="inline-flex items-center gap-2 px-3.5 py-1.5 mb-6 bg-white/5 backdrop-blur-xl text-neutral-300 rounded-full text-xs font-medium border border-white/10">
@@ -261,7 +261,8 @@ const ContactPage = () => {
 
       {/* FAQ */}
       <section className="relative bg-neutral-900 py-16 md:py-20 px-4 overflow-hidden">
-        <div className="pointer-events-none absolute bottom-0 left-1/4 w-96 h-96 bg-cyan-400/[0.06] rounded-full blur-[120px]" />
+        <GlowOrb color="59,130,246" opacity={0.07} size={884} className="top-1/4 left-1/40" />
+
 
         <div className="relative max-w-4xl mx-auto">
           <div className="text-center mb-12">

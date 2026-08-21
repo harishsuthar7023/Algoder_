@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Star, Quote } from "lucide-react";
-import { useSiteContent } from "../../hooks/useSiteContent";
+import { useSiteContent } from "../../hooks/SiteContentContext";
+import GlowOrb from "../Effects/GlowOrb";
 
 const getRandomTestimonials = (all, count = 3) => {
   const shuffled = [...all].sort(() => 0.5 - Math.random());
@@ -57,8 +58,8 @@ const CustomerTestimonials = () => {
   return (
     <div className="relative bg-neutral-900 text-white pt-5 pb-5 md:pt-20 md:pb-24 px-4 overflow-hidden">
       {/* Ambient glow orbs */}
-      <div className="pointer-events-none absolute top-0 right-1/4 w-96 h-96 bg-blue-500/[0.07] rounded-full blur-[120px]" />
-      <div className="pointer-events-none absolute bottom-0 left-1/3 w-96 h-96 bg-cyan-400/[0.06] rounded-full blur-[120px]" />
+      <GlowOrb color="59,130,246" opacity={0.07} size={584} className="top-1/4 left-1/40" />
+      <GlowOrb color="59,130,246" opacity={0.07} size={584} className="top-1/40 left-1/2" />
 
       {/* Header */}
       <div className="relative max-w-7xl mx-auto px-2 sm:px-4 mb-10 md:mb-12">

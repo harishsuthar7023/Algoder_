@@ -1,5 +1,5 @@
 import { MessageCircle, AlertTriangle } from "lucide-react";
-
+import GlowOrb from "../components/Effects/Gloworb";
 const SiteUnavailable = () => {
   const phoneNumber = "916376076985"; // apna actual WhatsApp number yahan daalein
   const message = "Hi, I visited your website but it seems some content isn't loading. Can you help?";
@@ -7,8 +7,8 @@ const SiteUnavailable = () => {
 
   return (
     <div className="relative min-h-screen bg-neutral-900 flex items-center justify-center px-5 overflow-hidden">
-      <div className="pointer-events-none absolute top-1/4 left-1/3 w-96 h-96 bg-blue-500/[0.08] rounded-full blur-[120px]" />
-      <div className="pointer-events-none absolute bottom-1/4 right-1/3 w-96 h-96 bg-cyan-400/[0.07] rounded-full blur-[120px]" />
+      <GlowOrb color="59,130,246" opacity={0.07} size={884} className="top-1/4 left-1/40" />
+      <GlowOrb color="34,211,238" opacity={0.07} size={884} className="top-1/40 left-1/2" />
 
       <div className="relative w-full max-w-md bg-white/[0.03] backdrop-blur-xl text-white p-8 rounded-2xl border border-white/10 text-center">
         <div className="flex items-center justify-center gap-2 mb-6">

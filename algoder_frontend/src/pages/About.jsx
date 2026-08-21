@@ -5,8 +5,8 @@ import { ArrowRight, CheckCircle2, Code2, Target, Zap } from "lucide-react";
 import Navbar from "../components/NavBar";
 import Footer from "../components/HomeSections/Footer";
 // import aboutContent from "../content/aboutContent";
-import { useSiteContent } from "../hooks/useSiteContent";
-
+import { useSiteContent } from "../hooks/SiteContentContext";
+import GlowOrb from "../components/Effects/Gloworb";
 const About = () => {
   
   const navigate = useNavigate();
@@ -52,9 +52,8 @@ const About = () => {
         <section className="relative pt-40 pb-24 px-4 overflow-hidden">
 
           {/* Background Glow */}
-          <div className="pointer-events-none absolute top-10 left-1/4 w-96 h-96 bg-blue-500/[0.08] rounded-full blur-[120px]" />
-
-          <div className="pointer-events-none absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-400/[0.07] rounded-full blur-[120px]" />
+          <GlowOrb color="59,130,246" opacity={0.07} size={884} className="top-1/4 left-1/40" />
+          <GlowOrb color="34,211,238" opacity={0.07} size={884} className="top-1/40 left-1/2" />
 
           <div className="relative max-w-4xl mx-auto text-center">
 

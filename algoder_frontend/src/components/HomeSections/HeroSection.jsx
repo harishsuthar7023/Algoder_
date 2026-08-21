@@ -1,5 +1,7 @@
-import { useSiteContent } from "../../hooks/useSiteContent";
+import { useSiteContent } from "../../hooks/SiteContentContext";
 import HeroEffects from "../Effects/HeroEffects";
+import GlowOrb from "../Effects/GlowOrb";
+// import GlowOrb from "../components/Effects/Gloworb";
 
 const WhatsAppIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -42,8 +44,8 @@ const HeroSection = () => {
         className="relative bg-neutral-900 min-h-full pt-20 md:pt-28 pb-5 overflow-hidden"
       >
         {/* Ambient glow orbs */}
-        <div className="pointer-events-none absolute top-10 left-0 w-96 h-96 bg-blue-500/[0.08] rounded-full blur-[120px]" />
-        <div className="pointer-events-none absolute bottom-0 right-0 w-[28rem] h-[28rem] bg-cyan-400/[0.07] rounded-full blur-[130px]" />
+        <GlowOrb color="59,130,246" opacity={0.07} size={884} className="top-1/4 left-1/40" />
+        <GlowOrb color="34,211,238" opacity={0.07} size={884} className="top-1/40 left-1/2" />
 
         {/* Faint grid texture */}
         <div

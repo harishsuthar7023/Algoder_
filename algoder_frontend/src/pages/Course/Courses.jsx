@@ -4,7 +4,7 @@ import Navbar from "../../components/NavBar";
 import Footer from "../../components/HomeSections/Footer";
 import CourseCard from "../../components/Course/CourseCard";
 import API from "../../utils/api";
-
+import GlowOrb from "../../components/Effects/Gloworb";
 function Courses() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,8 +25,8 @@ function Courses() {
       <Navbar />
       <div className="relative min-h-screen bg-neutral-900 text-white px-4 sm:px-10 pb-16 pt-28 overflow-hidden">
         {/* Ambient glow orbs */}
-        <div className="pointer-events-none absolute top-24 left-1/4 w-96 h-96 bg-blue-500/[0.07] rounded-full blur-[120px]" />
-        <div className="pointer-events-none absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-400/[0.06] rounded-full blur-[120px]" />
+        <GlowOrb color="59,130,246" opacity={0.07} size={884} className="top-1/4 left-1/40" />
+        <GlowOrb color="34,211,238" opacity={0.07} size={884} className="top-1/40 left-1/2" />
 
         <div className="relative max-w-7xl mx-auto">
           {/* Header */}

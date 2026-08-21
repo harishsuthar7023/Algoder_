@@ -1,5 +1,6 @@
 import { Suspense, lazy } from "react";
 import { Routes, Route } from "react-router-dom";
+import { SiteContentProvider } from "./hooks/SiteContentContext";
 
 // Lazy-loaded pages
 const Home = lazy(() => import("./pages/HomePage"));
@@ -30,13 +31,13 @@ const SiteContentAdmin = lazy(() => import('./pages/admin/SiteContentAdmin'));
 const ManageOrders = lazy(() => import("./pages/admin/ManageOrders"));
 const ManageUsers = lazy(() => import("./pages/admin/ManageUsers"));
 // const Users = lazy(() => import("./pages/admin/Users"));
-
+import GlowOrb from "./components/Effects/Gloworb";
 function AppLoader() {
   return (
     <div className="fixed inset-0 bg-neutral-900 flex items-center justify-center z-[100]">
       {/* Ambient glow orbs — same as rest of the app */}
-      <div className="pointer-events-none absolute top-1/4 left-1/3 w-96 h-96 bg-blue-500/[0.07] rounded-full blur-[120px]" />
-      <div className="pointer-events-none absolute bottom-1/4 right-1/3 w-96 h-96 bg-cyan-400/[0.06] rounded-full blur-[120px]" />
+      <GlowOrb color="59,130,246" opacity={0.07} size={884} className="top-1/4 left-1/40" />
+      <GlowOrb color="34,211,238" opacity={0.07} size={884} className="top-1/40 left-1/2" />
 
       <div className="relative flex flex-col items-center gap-4">
         <div className="flex items-center gap-2">
@@ -54,50 +55,52 @@ function AppLoader() {
 
 function App() {
   return (
-    <Suspense fallback={<AppLoader />}>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/register/:product/:id/:types" element={<Register />} />
-        <Route path="/login/:product/:id/:types" element={<Login />} />
+    <SiteContentProvider>
+      <Suspense fallback={<AppLoader />}>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/register/:product/:id/:types" element={<Register />} />
+          <Route path="/login/:product/:id/:types" element={<Login />} />
 
-        {/* Product Routes */}
-        <Route path="/products" element={<ProductPage />} />
-        <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/checkout/:id/:types" element={<CheckoutPage />} />
-        <Route path="/about" element={<About />} />
+          {/* Product Routes */}
+          <Route path="/products" element={<ProductPage />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/checkout/:id/:types" element={<CheckoutPage />} />
+          <Route path="/about" element={<About />} />
 
-        {/* User Orders */}
-        <Route path="/myorders/:product/:id/:types" element={<MyOrders />} />
-        <Route path="/ordercheck" element={<OrderCheck />} />
+          {/* User Orders */}
+          <Route path="/myorders/:product/:id/:types" element={<MyOrders />} />
+          <Route path="/ordercheck" element={<OrderCheck />} />
 
-        {/* Admin Routes */}
-        <Route path="/productadmin" element={<ProductAdmin />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/adminproducts" element={<AdminProducts />} />
-        <Route path="/courseadmin" element={<CourseAdmin />} />
-        <Route path="/courseadmin/:courseId/content" element={<CourseContentManager />} />
-
-
-        <Route path="/contact" element={<Contact />} />
-
-        <Route path="/courses" element={<CoursesPage />} />
-        <Route path="/course/:id" element={<CourseSalesPage />} />
-        <Route path="/mycourse/:id" element={<CoursePlayer />} />
+          {/* Admin Routes */}
+          <Route path="/productadmin" element={<ProductAdmin />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/adminproducts" element={<AdminProducts />} />
+          <Route path="/courseadmin" element={<CourseAdmin />} />
+          <Route path="/courseadmin/:courseId/content" element={<CourseContentManager />} />
 
 
-        <Route path="/sitecontent" element={<SiteContentAdmin />} />
+          <Route path="/contact" element={<Contact />} />
 
-        <Route path="/adminorders" element={<ManageOrders />} />
-        <Route path="/adminusers" element={<ManageUsers />} />
-        {/* Optional Route */}
-        {/* <Route path="/admin/users" element={<Users />} /> */}
-        {/* <Route path="/product/:id/edit" element={<EditProductForm />} /> */}
+          <Route path="/courses" element={<CoursesPage />} />
+          <Route path="/course/:id" element={<CourseSalesPage />} />
+          <Route path="/mycourse/:id" element={<CoursePlayer />} />
 
-        {/* Catch-all — must stay last */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Suspense>
+
+          <Route path="/sitecontent" element={<SiteContentAdmin />} />
+
+          <Route path="/adminorders" element={<ManageOrders />} />
+          <Route path="/adminusers" element={<ManageUsers />} />
+          {/* Optional Route */}
+          {/* <Route path="/admin/users" element={<Users />} /> */}
+          {/* <Route path="/product/:id/edit" element={<EditProductForm />} /> */}
+
+          {/* Catch-all — must stay last */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+    </SiteContentProvider>
   );
 }
 
