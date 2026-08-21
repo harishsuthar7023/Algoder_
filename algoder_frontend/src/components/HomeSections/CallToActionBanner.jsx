@@ -1,7 +1,7 @@
 import React from "react";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import { useSiteContent } from "../../hooks/SiteContentContext";
-import GlowOrb from "../Effects/GlowOrb";
+import GlowOrb from "../Effects/Gloworb";
 
 const CallToActionBanner = () => {
   const { content, loading } = useSiteContent();

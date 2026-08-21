@@ -1,6 +1,6 @@
 import { useSiteContent } from "../../hooks/SiteContentContext";
 import HeroEffects from "../Effects/HeroEffects";
-import GlowOrb from "../Effects/GlowOrb";
+import GlowOrb from "../Effects/Gloworb";
 // import GlowOrb from "../components/Effects/Gloworb";
 
 const WhatsAppIcon = () => (

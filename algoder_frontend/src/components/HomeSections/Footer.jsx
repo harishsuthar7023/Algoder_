@@ -10,7 +10,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useSiteContent } from "../../hooks/SiteContentContext";
-import GlowOrb from "../Effects/GlowOrb";
+import GlowOrb from "../Effects/Gloworb";
 const iconMap = {
   MapPin,
   Phone,

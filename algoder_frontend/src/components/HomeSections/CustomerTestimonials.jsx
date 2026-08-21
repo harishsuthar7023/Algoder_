@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Star, Quote } from "lucide-react";
 import { useSiteContent } from "../../hooks/SiteContentContext";
-import GlowOrb from "../Effects/GlowOrb";
+import GlowOrb from "../Effects/Gloworb";
 
 const getRandomTestimonials = (all, count = 3) => {
   const shuffled = [...all].sort(() => 0.5 - Math.random());
